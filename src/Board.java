@@ -57,10 +57,10 @@ public class Board {
 	/**
 	 * Create a default canvas with the board in a chosen coordinate
 	 * 
-	 * @param x
-	 *            the left position of the board
 	 * @param y
 	 *            the top position of the board
+	 * @param x
+	 *            the left position of the board
 	 */
 	public Board(double x, double y) {
 		this.x = x;
