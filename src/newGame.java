@@ -30,10 +30,7 @@ public class newGame {
 	private int numOfBlue = 0;
 	// next disc player to move,1 for red,2 for blue
 	private int nextmove = 1;
-	// check if a player has select a disc to move
-	private boolean selected = false;
-	// the number of disc a player has selected to move
-	private int selecteddics;
+	
 
 	/**
 	 * 
@@ -47,8 +44,8 @@ public class newGame {
 		board = new Board(500, 500, 100, 50);
 		// message to display
 		message = new Label("Game continues");
-		message.setLayoutX(180);
-		message.setLayoutY(375);
+		message.setLayoutX(140);
+		message.setLayoutY(360);
 		message.setMinSize(250, 100);
 		message.setAlignment(Pos.CENTER_LEFT);
 		message.setFont(Font.font(30));
@@ -89,7 +86,7 @@ public class newGame {
 						nextmove = 1;
 						disks[numOfBlue + 6] = true;
 						numOfBlue++;
-						message.setText("Game Continues");
+						message.setText("Game in progress");
 					}
 				} else {
 					message.setText("Invalid move");
@@ -104,7 +101,7 @@ public class newGame {
 						nextmove = 2;
 						disks[numOfRed] = true;
 						numOfRed++;
-						message.setText("Game Continues");
+						message.setText("Game in progress");
 					}
 				} else {// error
 					message.setText("Invalid move");
@@ -178,29 +175,16 @@ public class newGame {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				// put the disc on the board
-				if ((numOfRed + numOfBlue) < 12)
+				if ((numOfRed + numOfBlue) < 12){
 					place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+					mouseEvent.consume();
+				}
+				
 				// move the disc
 				else {
+					mouseEvent.consume();
 					new Game(window,nextmove);
-					/*
-					if (selected) {
-						move(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-					} else {
-						double x = mouseEvent.getSceneX();
-						double y = mouseEvent.getSceneY();
-						if (x > 95 && x < 405 && y > 45 && y < 355 && board.position(x, y) >= 0) {
-							if (Model.valueAt(board.position(x, y)) == nextmove && nextmove == 1) {
-								selecteddics = board.position(x, y);
-								selected = true;
-							} else if (Model.valueAt(board.position(x, y)) == nextmove && nextmove == 2) {
-								selecteddics = board.position(x, y);
-								selected = true;
-							} else {
-							}
-						}
-
-					}*/
+					
 
 				}
 			}
@@ -217,36 +201,7 @@ public class newGame {
 
 	}
 
-	/**
-	 * move the selected the disc to the new position
-	 * 
-	 * @param x
-	 *            - the x coordinate value of the position user clicked
-	 * @param y
-	 *            - the y coordinate value of the position user clicked
-	 */
-	private void move(double x, double y) {
-		if (x > 95 && x < 405 && y > 45 && y < 355 && board.position(x, y) >= 0) {
-			// the 'red' disc player takes the next move
-			if (Model.isPossiblePlace(Model.getCurBoard(), board.position(x, y)) && nextmove == 1) {
-				Model.setValue(selecteddics, 0);
-				Model.setValue(board.position(x, y), 1);
-				selecteddics = -1;
-				nextmove = 2;
-				selected = false;
-			}
-			// the 'blue' disc player takes the next move
-			else if (Model.isPossiblePlace(Model.getCurBoard(), board.position(x, y)) && nextmove == 2) {
-				Model.setValue(selecteddics, 0);
-				Model.setValue(board.position(x, y), 2);
-				nextmove = 1;
-				selecteddics = -1;
-				selected = false;
-			} else {
-				message.setText("Invalid move");
-			}
-		}
-
-	}
+	
+	
 
 }

@@ -2,7 +2,7 @@
 /**
  * Write what the purpose of this class is
  * 
- * @author Emily Ashworth, Pavithran Pathmarajah
+ * @author Emily Ashworth, Pavithran Pathmarajah, Ziyi Jin
  * @version A1
  */
 public class Model {
@@ -63,7 +63,7 @@ public class Model {
 		boardPositions[pos] = val;
 	}
 
-	/* The isPossiblePlace method calculates if it is possible for the player
+	/** The isPossiblePlace method calculates if it is possible for the player
 	* to place a piece in a location.
 	* 
 	* @param int[] a
@@ -74,18 +74,18 @@ public class Model {
 	* 				a boolean stating if a piece can be placed in a specified position.
 	*/
 	public static boolean isPossiblePlace(int[] a, int p) { 
-		if (a[p] == 1 || a[p] == 2) { // Checks if that location is already
-										// occupied.
-			// System.out.println("Error: You cannot place a piece on top of
-			// another piece."); //Then prints an error message and returns
-			// false if the space is occupied.
+		// Checks if that location is already occupied.
+		//Then prints an error message and returns
+		// false if the space is occupied.
+
+		if (a[p] == 1 || a[p] == 2) { 
 			return false;
 		}
 		return true; // Otherwise the space is free, and the player can place
 						// their piece in that location so true is returned.
 	}
 
-	/* The isPossibleBoard checks if a board is legal and playable or not.
+	/** The isPossibleBoard checks if a board is legal and playable or not.
 	 * 
 	 * @return
 	 * 		A boolean stating if a board is playable.
@@ -124,13 +124,13 @@ public class Model {
 			return false;
 		}
 
-		if (isBlocked(boardPositions, 1, redCounter)) { // This uses the
+		if (isBlocked(boardPositions, 1)) { // This uses the
 														// isBlocked function
 			// to check if the Red player is
 			// blocked, if so
 			error = 3; //Error is created
 			return false; // False returned.
-		} else if (isBlocked(boardPositions, 2, blueCounter)) { // Same as
+		} else if (isBlocked(boardPositions, 2)) { // Same as
 																// above.
 			error = 4;
 			return false;
@@ -139,21 +139,18 @@ public class Model {
 		return true; // Otherwise board is legal and playable, true is returned.
 	}
 
-	/* The isBlocked function checks if a player is blocked, that is they have
+	/** The isBlocked function checks if a player is blocked, that is they have
 	* no pieces capable of legal moves.
 	* 
 	* @param int[] boardPositions
 	* 							This is the array with the board positions.
 	* @param int player
 	* 					Indicates Player 1 or Player 2
-	* @param int numberPieces
-	* 					Gives the number of pieces indicated player has on the board.
 	* @return 
 	* 			A boolean stating whether a player is blocked or not.
 	*/
-	public static boolean isBlocked(int[] boardPositions, int player, int numberPieces) { // It
-		// takes
-		// in
+	public static boolean isBlocked(int[] boardPositions, int player) { // It
+		// takes in
 		// the
 		// array,
 		// player
@@ -168,99 +165,293 @@ public class Model {
 		// has
 		// as
 		// input.
-		int numberBlockedPieces = 0; // A counter is set for number of pieces.
+		
 
-		// For each position where the player has a piece the neighbouring
-		// locations are checked for pieces. If all surrounding locations are
-		// filled that piece is blocked and the counter is increased by 1.
+		// For each position where the player has a piece, the neighbouring
+		// locations are checked for pieces. If any piece's surrounding locations are not
+		// filled.That player is not blocked.Return false. 
 		if (boardPositions[0] == player) {
-			if (boardPositions[1] != 0 && boardPositions[6] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[1] == 0 || boardPositions[6] == 0) return false;
 		}
 		if (boardPositions[1] == player) {
-			if (boardPositions[0] != 0 && boardPositions[2] != 0 && boardPositions[4] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[0] == 0 || boardPositions[2] == 0 || boardPositions[4] == 0) return false;
 		}
 		if (boardPositions[2] == player) {
-			if (boardPositions[1] != 0 && boardPositions[9] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[1] == 0 || boardPositions[9] == 0)return false;
 		}
 		if (boardPositions[3] == player) {
-			if (boardPositions[4] != 0 && boardPositions[7] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[4] == 0 || boardPositions[7] == 0) return false;
 		}
 		if (boardPositions[4] == player) {
-			if (boardPositions[1] != 0 && boardPositions[3] != 0 && boardPositions[5] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[1] == 0 || boardPositions[3] == 0 || boardPositions[5] == 0) return false;
 		}
 		if (boardPositions[5] == player) {
-			if (boardPositions[4] != 0 && boardPositions[8] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[4] == 0 || boardPositions[8] == 0) return false;
 		}
 		if (boardPositions[6] == player) {
-			if (boardPositions[0] != 0 && boardPositions[7] != 0 && boardPositions[13] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[0] == 0 || boardPositions[7] == 0 || boardPositions[13] == 0)return false;
 		}
 		if (boardPositions[7] == player) {
-			if (boardPositions[3] != 0 && boardPositions[6] != 0 && boardPositions[10] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[3] == 0 || boardPositions[6] == 0 || boardPositions[10] == 0) return false;
 		}
 		if (boardPositions[8] == player) {
-			if (boardPositions[5] != 0 && boardPositions[9] != 0 && boardPositions[12] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[5] == 0 || boardPositions[9] == 0 && boardPositions[12] == 0) return false;
 		}
 		if (boardPositions[9] == player) {
-			if (boardPositions[2] != 0 && boardPositions[8] != 0 && boardPositions[15] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[2] == 0 || boardPositions[8] != 0 || boardPositions[15] == 0)return false;
 		}
 		if (boardPositions[10] == player) {
-			if (boardPositions[7] != 0 && boardPositions[11] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[7] == 0 || boardPositions[11] == 0) return false;
 		}
 		if (boardPositions[11] == player) {
-			if (boardPositions[10] != 0 && boardPositions[12] != 0 && boardPositions[14] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[10] == 0 || boardPositions[12] != 0 || boardPositions[14] == 0) return false;
 		}
 		if (boardPositions[12] == player) {
-			if (boardPositions[8] != 0 && boardPositions[11] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[8] == 0 || boardPositions[11] == 0) return false;
 		}
 		if (boardPositions[13] == player) {
-			if (boardPositions[6] != 0 && boardPositions[14] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[6] == 0 || boardPositions[14] == 0) return false;
 		}
 		if (boardPositions[14] == player) {
-			if (boardPositions[11] != 0 && boardPositions[13] != 0 && boardPositions[15] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[11] == 0 || boardPositions[13] == 0 || boardPositions[15] == 0) return false;
 		}
 		if (boardPositions[15] == player) {
-			if (boardPositions[9] != 0 && boardPositions[14] != 0) {
-				numberBlockedPieces++;
-			}
+			if (boardPositions[9] == 0 || boardPositions[14] == 0) return false;
 		}
 
-		if (numberBlockedPieces == numberPieces) { // If all the players pieces
-													// are blocked, the player
-													// is blocked, and true is
-													// returned.
-			return true;
-		}
-		return false; // Otherwise player is not blocked and false is returned.
+		
+		return true; // Otherwise player is blocked and true is returned.
 
 	}
+	
+	
+	
+	
+	
+	/**
+	 * check if a player win the game.
+	 * @return return an int value representing who wins. 0 for no one wins,1 for red wins,2 for blue wins
+	 */
+	
+    //we only need to check who wins the game after placing all the dices. 
+	public static int checkWin(int mover){
+		
+		//check dices numbers
+		int numberOfRed=0;   //number of red on board after 
+		int numberOfBlue=0;  //number of blue on board
+		for(int i=0;i<boardPositions.length;i++){
+			if(boardPositions[i]==1) numberOfRed++;
+			else if (boardPositions[i]==2) numberOfBlue++;
+		}
+		if(numberOfRed<=2) return 2;//blue wins
+		if(numberOfBlue<=2) return 1;//red wins
+		
+		//check if a player is blocked
+		if(isBlocked(boardPositions,1)&& mover==1) return 2;  //red is blocked, blue wins,return 2.
+		if(isBlocked(boardPositions,2)&& mover==2) return 1;  //blue is blocked, red wins,return 1. 
+		
+		return 0;  //no one wins
+	}
+	
+	//board position start form 0 to 15
+	public static boolean canEat(int currentmove,int position){
+		if (position==0) {
+			if (boardPositions[1] == currentmove && boardPositions[2] == currentmove) return true;
+			else if(boardPositions[6] == currentmove && boardPositions[13] == currentmove) return true;
+		}
+		if (position==1) {
+			if (boardPositions[0] == currentmove && boardPositions[2] == currentmove) return true;
+		}
+		if (position==2) {
+			if (boardPositions[1] == currentmove && boardPositions[0] == currentmove) return true;
+			else if(boardPositions[9] == currentmove && boardPositions[15] == currentmove) return true;
+		}
+		if (position==3) {
+			if (boardPositions[4] == currentmove && boardPositions[5] == currentmove) return true;
+			else if(boardPositions[7] == currentmove && boardPositions[10] == currentmove) return true;
+		}
+		if (position==4) {
+			if (boardPositions[3] == currentmove && boardPositions[5] == currentmove) return true;
+		}
+		if (position==5) {
+			if (boardPositions[3] == currentmove && boardPositions[4] == currentmove) return true;
+			else if(boardPositions[8] == currentmove && boardPositions[12] == currentmove) return true;
+		}
+		if (position==6) {
+			if (boardPositions[0] == currentmove && boardPositions[13] == currentmove) return true;
+			
+		}
+		if (position==7) {
+			if (boardPositions[3] == currentmove && boardPositions[10] == currentmove) return true;
+			
+		}
+		if (position==8) {
+			if (boardPositions[5] == currentmove && boardPositions[12] == currentmove) return true;
+			
+		}
+		if (position==9) {
+			if (boardPositions[2] == currentmove && boardPositions[15] == currentmove) return true;
+			
+		}
+		if (position==10) {
+			if (boardPositions[3] == currentmove && boardPositions[7] == currentmove) return true;
+			else if(boardPositions[11] == currentmove && boardPositions[12] == currentmove) return true;
+			
+		}
+		if (position==11) {
+			if (boardPositions[10] == currentmove && boardPositions[12] == currentmove) return true;
+			
+		}
+		
+		if (position==12) {
+			if (boardPositions[10] == currentmove && boardPositions[11] == currentmove) return true;
+			else if(boardPositions[5] == currentmove && boardPositions[8] == currentmove) return true;
+		}
+		
+		if (position==13) {
+			if (boardPositions[0] == currentmove && boardPositions[6] == currentmove) return true;
+			else if(boardPositions[14] == currentmove && boardPositions[15] == currentmove) return true;
+		}
+		if (position==14) {
+			if (boardPositions[13] == currentmove && boardPositions[15] == currentmove) return true;
+			
+		}
+		if (position==15) {
+			if (boardPositions[13] == currentmove && boardPositions[14] == currentmove) return true;
+			else if(boardPositions[2] == currentmove && boardPositions[9] == currentmove) return true;
+		}
+		
+		return false;
+	}
+	
+	
+	
+	public static boolean canBeAte(int position,int DiceCoulor){
+		if (position==0) {
+			if (boardPositions[1] == DiceCoulor && boardPositions[2] == DiceCoulor) return false;
+			else if(boardPositions[6] == DiceCoulor && boardPositions[13] == DiceCoulor) return false;
+		}
+		if (position==1) {
+			if (boardPositions[0] == DiceCoulor && boardPositions[2] == DiceCoulor) return false;
+		}
+		if (position==2) {
+			if (boardPositions[1] == DiceCoulor && boardPositions[0] == DiceCoulor) return false;
+			else if(boardPositions[9] == DiceCoulor && boardPositions[15] == DiceCoulor) return false;
+		}
+		if (position==3) {
+			if (boardPositions[4] == DiceCoulor && boardPositions[5] == DiceCoulor) return true;
+			else if(boardPositions[7] == DiceCoulor && boardPositions[10] == DiceCoulor) return false;
+		}
+		if (position==4) {
+			if (boardPositions[3] == DiceCoulor && boardPositions[5] == DiceCoulor) return false;
+		}
+		if (position==5) {
+			if (boardPositions[3] == DiceCoulor && boardPositions[4] == DiceCoulor) return false;
+			else if(boardPositions[8] == DiceCoulor && boardPositions[12] == DiceCoulor) return false;
+		}
+		if (position==6) {
+			if (boardPositions[0] == DiceCoulor && boardPositions[13] == DiceCoulor) return false;
+			
+		}
+		if (position==7) {
+			if (boardPositions[3] == DiceCoulor && boardPositions[10] == DiceCoulor) return false;
+			
+		}
+		if (position==8) {
+			if (boardPositions[5] == DiceCoulor && boardPositions[12] == DiceCoulor) return false;
+			
+		}
+		if (position==9) {
+			if (boardPositions[2] == DiceCoulor && boardPositions[15] == DiceCoulor) return false;
+			
+		}
+		if (position==10) {
+			if (boardPositions[3] == DiceCoulor && boardPositions[7] == DiceCoulor) return false;
+			else if(boardPositions[11] == DiceCoulor && boardPositions[12] == DiceCoulor) return false;
+			
+		}
+		if (position==11) {
+			if (boardPositions[10] == DiceCoulor && boardPositions[12] == DiceCoulor) return false;
+			
+		}
+		
+		if (position==12) {
+			if (boardPositions[10] == DiceCoulor && boardPositions[11] == DiceCoulor) return false;
+			else if(boardPositions[5] == DiceCoulor && boardPositions[8] == DiceCoulor) return false;
+		}
+		
+		if (position==13) {
+			if (boardPositions[0] == DiceCoulor && boardPositions[6] == DiceCoulor) return false;
+			else if(boardPositions[14] == DiceCoulor && boardPositions[15] == DiceCoulor) return false;
+		}
+		if (position==14) {
+			if (boardPositions[13] == DiceCoulor && boardPositions[15] == DiceCoulor) return false;
+			
+		}
+		if (position==15) {
+			if (boardPositions[13] == DiceCoulor && boardPositions[14] == DiceCoulor) return false;
+			else if(boardPositions[2] == DiceCoulor && boardPositions[9] == DiceCoulor) return false;
+		}
+		
+		return true;
+	}
+	
+	
+	public static boolean canMoveTo(int from,int to){
+		if (from==0) {
+			if (to == 1 || to == 6) return true;
+		}
+		if (from==1) {
+			if (to == 0 || to == 2|| to == 4) return true;
+		}
+		if (from==2) {
+			if (to == 9 || to == 1) return true;
+		}
+		if (from==3) {
+			if (to == 4 || to == 7) return true;
+		}
+		if (from==4) {
+			if (to == 3 || to == 5 || to == 1) return true;
+		}
+		if (from==5) {
+			if (to == 4 || to == 8) return true;
+		}
+		if (from==6) {
+			if (to == 0 || to == 13 ||to == 7) return true;
+		}
+		if (from==7) {
+			if (to == 3 || to == 6 ||to == 10) return true;
+		}
+		if (from==8) {
+			if (to == 5 || to == 12 || to == 9) return true;
+		}
+		if (from==9) {
+			if (to == 8 || to == 2 ||to == 15) return true;
+		}
+		if (from==10) {
+			if (to == 11 || to == 7) return true;
+		}
+		if (from==11) {
+			if (to == 10 || to == 12 ||to == 14) return true;
+		}
+		if (from==12) {
+			if (to == 11 || to == 8) return true;
+		}
+		if (from==13) {
+			if (to == 6 || to == 14) return true;
+		}
+		if (from==14) {
+			if (to == 13 || to == 11 ||to == 15) return true;
+		}
+		if (from==15) {
+			if (to == 14 || to == 9) return true;
+		}
+		
+		
+		
+		
+		return false;
+	}
+	
+	
 }

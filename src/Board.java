@@ -1,14 +1,6 @@
-import java.io.File;
-import java.util.Random;
-
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 /**
  * This class is used to draw the board, the Game; newGame; and existingGame It

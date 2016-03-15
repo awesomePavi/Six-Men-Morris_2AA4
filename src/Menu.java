@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 /**
  * This is the main menu, and the encapsulation of the entire application
  * 
- * @author Shawn Jin. PAvithran Pathmarajah
+ * @author Ziyi Jin. Pavithran Pathmarajah
  * @version A1
  */
 public class Menu extends Application {

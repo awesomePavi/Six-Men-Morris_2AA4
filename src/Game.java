@@ -1,10 +1,13 @@
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
@@ -14,7 +17,7 @@ import javafx.stage.Stage;
 /**
  * This class currently allows for simply moving pieces around no game dynamics
  * 
- * @author Pavi
+ * @author Pavi, Ziyi Jin
  */
 public class Game {
 	// graphic interface
@@ -23,9 +26,16 @@ public class Game {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	// current players move
-	private int nextmove = 1;
+	private int currentmove;
+	private int nextmove;
 	// the current selected piece
-	private int selected = 0;
+	private int selected = -1;
+	
+	private int chooseToEat;
+	private boolean makeEat=false;
+	
+	private Label message;
+	private Label errorMessage;
 
 	/**
 	 * The game constructor takes in the application window and the first player
@@ -40,11 +50,25 @@ public class Game {
 		// current players move
 		nextmove = player;
 
-		//to handle the iwndow graphics
-		this.canvas = new Canvas(350, 400);
+		//to handle the window graphics
+		this.canvas = new Canvas(500, 500);
 		this.gc = canvas.getGraphicsContext2D();
-		board = new Board(350, 400, 25, 75);
+		board = new Board(500, 500, 100, 50);
 		
+		message=new Label("Game in progress");
+		message.setLayoutX(140);
+		message.setLayoutY(360);
+		message.setMinSize(250, 100);
+		message.setAlignment(Pos.CENTER_LEFT);
+		message.setFont(Font.font(30));
+		
+		
+		errorMessage=new Label("");
+		errorMessage.setLayoutX(200);
+		errorMessage.setLayoutY(20);
+		errorMessage.setAlignment(Pos.CENTER_LEFT);
+		errorMessage.setFont(Font.font(18));
+		errorMessage.setTextFill(Color.RED);
 		//update and create the window graphics
 		update();
 		
@@ -52,20 +76,78 @@ public class Game {
 		Group root = new Group();
 		root.getChildren().add(board.getCanvas());
 		root.getChildren().add(this.canvas);
+		root.getChildren().add(message);
+		root.getChildren().add(errorMessage);
 		
 		//get scene for UI to be added
 		scene = new Scene(root);
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				currentmove=nextmove;
+				if(!makeEat){
 				// if something has already been selected then place it
-				if (selected != 0)
-					place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-				// if nothing has been selected then select an object
-				else
-					selected = select(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-				//update the selected highlight
+					if (selected != -1) {
+						
+						boolean moved=moveTo(mouseEvent.getSceneX(),mouseEvent.getSceneY(),selected);
+						if(moved){
+						    update();
+						    if (Model.canEat(currentmove, board.position(mouseEvent.getSceneX(),mouseEvent.getSceneY()))) {
+								makeEat = true;
+								mouseEvent.consume();
+							}
+						
+						}
+						else{
+							selected = -1;
+							mouseEvent.consume();
+							
+						}
+					}
+					// if nothing has been selected then select an
+					// object
+						else {
+							selected = select(mouseEvent.getSceneX(),mouseEvent.getSceneY());
+							mouseEvent.consume();
+						}
+					}
+				// can eat other's dices
+				else{
+					chooseToEat = select(mouseEvent.getSceneX(),mouseEvent.getSceneY());
+					mouseEvent.consume();
+					
+					//choose a valid dice to eat
+					if(chooseToEat!=-1){
+						int toEat=Model.valueAt(chooseToEat);
+						//choose the right dice to eat
+						if(toEat==nextmove){
+							//the chosen opponent's dice can be ate 
+							if(Model.canBeAte(chooseToEat,nextmove)){
+								eat(chooseToEat);
+								update();
+								makeEat = false;
+								
+								
+							}
+							//the chosen opponent's dice cannot be ate 
+							else{
+								dispError("Invalid Move");
+								
+							}
+						}
+					}
+					//choose an invalid dice to eat
+					else{
+						dispError("Invalid Move");			
+                    }
+					
+					
+				}
 				update();
+				//check wins
+				int win=Model.checkWin(nextmove);
+				if(win==1){dispMessage("Red wins");}
+				if(win==2){dispMessage("Blue wins");}
 			}
 		});
 		/*
@@ -84,18 +166,20 @@ public class Game {
 	}
 
 	/**
-	 * This function takes in the x and y locations and then moves the selected disk accordingly
+	 * This function takes in the x and y locations and then moves the selected disk accordingly.
 	 * 
 	 * @param x
 	 *            the mouse x position relative to the canvas
 	 * @param y
 	 *            the mouse y position relative to the canvas
+	 * @return
+	 * 			return true if dice is successfully moved and false otherwise
 	 */
-	private void place(double x, double y) {
+	private boolean moveTo(double x, double y,int from) {
 		//the positon the user pressed on
 		int toPlace = board.position(x, y);
-		//if their is no piece at the choosen position and the mouse is on a position
-		if (toPlace >=1 && Model.valueAt(toPlace) == 0) {
+		//if their is no piece at the choosen position and the mouse is on a position. position starts from 0 to 15
+		if (toPlace >=0 && Model.valueAt(toPlace) == 0 && Model.canMoveTo(from,toPlace)) {
 			//place the player's piece and remove it from the last position
 			Model.setValue(toPlace, nextmove);
 			Model.setValue(selected, 0);
@@ -105,12 +189,19 @@ public class Game {
 			else
 				nextmove = 1;
 			//no disk is selected anymore
-			selected = 0;
+			selected = -1;
 			//do not show error message
-			return;
+			dispError("");
+			return true;
 		}
 		dispError("Invalid Move");
+		return false;
 	}
+	
+	public void eat(int select){
+		Model.setValue(select, 0);
+	}
+	
 
 	/**
 	 * This function takes i nthe mosue location and returns the disk the user has selcted if it is their own disk
@@ -129,7 +220,7 @@ public class Game {
 			return toSelect;
 		//if the user selected a disk that is not their's or no disk at all
 		dispError("Invalid piece");
-		return 0;
+		return -1;
 	}
 
 	/**
@@ -151,12 +242,16 @@ public class Game {
 	 * @param text the error to be displayed
 	 */
 	private void dispError(String text) {
-		// erase any previous error
-		gc.setFill(Color.WHITE);
-		gc.fillRect(25, 30, 300, 20);
-		// diplay new error
-		gc.setFill(Color.RED);
-		gc.fillText(text, 25, 50, 300);
+		errorMessage.setText(text);
+	}
+	
+	/**
+	 * used to display message above the board, erases previous message.
+	 * 
+	 * @param text the message to be displayed
+	 */
+	private void dispMessage(String text) {
+		message.setText(text);
 	}
 
 	/**
@@ -165,7 +260,7 @@ public class Game {
 	private void update() {
 		board.update();
 		//if a  position on the board is selcted highlight it
-		if (selected != 0)
+		if (selected != -1)
 			board.strokePos(selected, Color.WHITE);
 	}
 
