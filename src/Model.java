@@ -1,9 +1,9 @@
 
 /**
- * Write what the purpose of this class is
+ * This class acts as the model module in the MVC architecture
  * 
  * @author Emily Ashworth, Pavithran Pathmarajah, Ziyi Jin
- * @version A1
+ * @version A2
  */
 public class Model {
 
@@ -204,7 +204,7 @@ public class Model {
 			if (boardPositions[7] == 0 || boardPositions[11] == 0) return false;
 		}
 		if (boardPositions[11] == player) {
-			if (boardPositions[10] == 0 || boardPositions[12] != 0 || boardPositions[14] == 0) return false;
+			if (boardPositions[10] == 0 || boardPositions[12] == 0 || boardPositions[14] == 0) return false;
 		}
 		if (boardPositions[12] == player) {
 			if (boardPositions[8] == 0 || boardPositions[11] == 0) return false;
@@ -230,7 +230,8 @@ public class Model {
 	
 	/**
 	 * check if a player win the game.
-	 * @return return an int value representing who wins. 0 for no one wins,1 for red wins,2 for blue wins
+	 * @return 
+	 * 			return an int value representing who wins. 0 for no one wins,1 for red wins,2 for blue wins
 	 */
 	
     //we only need to check who wins the game after placing all the dices. 
@@ -253,6 +254,17 @@ public class Model {
 		return 0;  //no one wins
 	}
 	
+	
+	/**
+	 * This function checks if the current player can perform the eat step.
+	 * 
+	 * @param currentmove
+	 * 					the player that is making the current move
+	 * @param position
+	 * 					the position of the dice selected by the current player moves to
+	 * @return
+	 * 			return true if the current user can eat the opponet's dice
+	 */
 	//board position start form 0 to 15
 	public static boolean canEat(int currentmove,int position){
 		if (position==0) {
@@ -326,6 +338,16 @@ public class Model {
 	
 	
 	
+	/**
+	 * This function checks if the a dice on the specific board position can be ate
+	 * 
+	 * @param position
+	 * 					the position of the dice that the current player want to eat
+	 * @param DiceCoulor
+	 * 					the color of the dice that the current player want to eat
+	 * @return
+	 * 			return true if the selected dice can be ate and false otherwise
+	 */
 	public static boolean canBeAte(int position,int DiceCoulor){
 		if (position==0) {
 			if (boardPositions[1] == DiceCoulor && boardPositions[2] == DiceCoulor) return false;
@@ -396,7 +418,16 @@ public class Model {
 		return true;
 	}
 	
-	
+	/**
+	 * check if the move is valid
+	 * 
+	 * @param from
+	 * 				the start position of the dice be selected
+	 * @param to
+	 * 				the position the selected dice wants to move to
+	 * @return
+	 * 				return ture if the dice can be moved to the selected position
+	 */
 	public static boolean canMoveTo(int from,int to){
 		if (from==0) {
 			if (to == 1 || to == 6) return true;
@@ -446,10 +477,6 @@ public class Model {
 		if (from==15) {
 			if (to == 14 || to == 9) return true;
 		}
-		
-		
-		
-		
 		return false;
 	}
 	

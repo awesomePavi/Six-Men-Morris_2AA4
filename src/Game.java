@@ -10,14 +10,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-/**
- * 
- */
+
 
 /**
  * This class currently allows for simply moving pieces around no game dynamics
  * 
  * @author Pavi, Ziyi Jin
+ * @version A2
  */
 public class Game {
 	// graphic interface
@@ -25,15 +24,17 @@ public class Game {
 	private Scene scene;
 	private Canvas canvas;
 	private GraphicsContext gc;
-	// current players move
+	// the player perform current move
 	private int currentmove;
+	//the player perform next move
 	private int nextmove;
 	// the current selected piece
 	private int selected = -1;
-	
+	//the chosen dice to eat
 	private int chooseToEat;
+	//if a player can eat other's dice
 	private boolean makeEat=false;
-	
+	//message display
 	private Label message;
 	private Label errorMessage;
 
@@ -85,6 +86,7 @@ public class Game {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				currentmove=nextmove;
+				//cannot eat
 				if(!makeEat){
 				// if something has already been selected then place it
 					if (selected != -1) {
@@ -92,6 +94,7 @@ public class Game {
 						boolean moved=moveTo(mouseEvent.getSceneX(),mouseEvent.getSceneY(),selected);
 						if(moved){
 						    update();
+						    //check if can eat
 						    if (Model.canEat(currentmove, board.position(mouseEvent.getSceneX(),mouseEvent.getSceneY()))) {
 								makeEat = true;
 								mouseEvent.consume();
@@ -111,7 +114,7 @@ public class Game {
 							mouseEvent.consume();
 						}
 					}
-				// can eat other's dices
+				// can eat
 				else{
 					chooseToEat = select(mouseEvent.getSceneX(),mouseEvent.getSceneY());
 					mouseEvent.consume();
@@ -126,8 +129,6 @@ public class Game {
 								eat(chooseToEat);
 								update();
 								makeEat = false;
-								
-								
 							}
 							//the chosen opponent's dice cannot be ate 
 							else{
@@ -197,9 +198,15 @@ public class Game {
 		dispError("Invalid Move");
 		return false;
 	}
-	
+	/**
+	 * This function takes the number of dice to be eat and perform the eat operation
+	 * 
+	 * @param select
+	 * 				the index of the dice to eat 
+	 */
 	public void eat(int select){
 		Model.setValue(select, 0);
+		dispError("");
 	}
 	
 

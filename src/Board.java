@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
  * is a helper to minimize redundancy
  * 
  * @author Pavithran Pathmarajah
- * @version A1
+ * @version A2
  */
 public class Board {
 	private Canvas canvas;
