@@ -27,6 +27,18 @@ public class Model {
 	public static int[] getCurBoard() {
 		return boardPositions;
 	}
+	
+	/**
+	 * This function returns the entirety of the board positions as requested
+	 * 
+	 * @return the boardPositions array that holds all the position values
+	 */
+	public static void reset() {
+		for (int i=0;i<16;i++){
+			boardPositions[i]=0;
+		}
+	}
+	
 
 	/**
 	 * This method is used to find the value at any given position in the board

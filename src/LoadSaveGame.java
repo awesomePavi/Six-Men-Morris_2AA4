@@ -83,5 +83,7 @@ public class LoadSaveGame {
 			write.close();
 		} catch (Exception e) {
 		}
+		//resetBoard state for new Game
+				Model.reset();
 	}
 }
