@@ -1,6 +1,7 @@
 import java.util.Random;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -8,6 +9,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -24,7 +29,6 @@ public class newGame {
 	private Canvas canvas;
 	private GraphicsContext gc;
 	private Label message;
-	private Label errorMessage;
 	// store the value if a disc has been put on the board
 	private boolean disks[] = { false, false, false, false, false, false, false, false, false, false, false, false };
 	// number of red and blue on the board
@@ -45,25 +49,19 @@ public class newGame {
 	 */
 	public newGame(Stage primaryStage) {
 
-		this.canvas = new Canvas(500, 500);
+		this.canvas = new Canvas(500, 400);
 		this.gc = canvas.getGraphicsContext2D();
-		board = new Board(500, 500, 100, 50);
+		board = new Board(500, 400, 100, 50);
+		
 		// message to display
-		message = new Label("Game in progress");
-		message.setLayoutX(140);
-		message.setLayoutY(360);
-		message.setMinSize(250, 100);
-		message.setAlignment(Pos.CENTER_LEFT);
+		message = new Label("Game is Valid");
+		message.setLayoutX(125);
+		message.setLayoutY(0);
+		message.setMinSize(250, 50);
+		message.setAlignment(Pos.CENTER);
 		message.setFont(Font.font(30));
+		message.setTextFill(Color.BLUE);
 		
-		
-		errorMessage=new Label("");
-		errorMessage.setLayoutX(200);
-		errorMessage.setLayoutY(20);
-		errorMessage.setAlignment(Pos.CENTER_LEFT);
-		errorMessage.setFont(Font.font(18));
-		errorMessage.setTextFill(Color.RED);
-
 		// update the scene
 		this.update();
 
@@ -71,9 +69,10 @@ public class newGame {
 		root.getChildren().add(this.canvas);
 		root.getChildren().add(board.getCanvas());
 		root.getChildren().add(message);
-		root.getChildren().add(errorMessage);
 		Scene scene = new Scene(root);
-
+		//background Colour
+		scene.setFill(new Color(0.4,0.4,0.4, 1.0));
+	 
 		// run the game
 		playgame(scene);
 
@@ -101,12 +100,13 @@ public class newGame {
 						nextmove = 1;
 						disks[numOfBlue + 6] = true;
 						numOfBlue++;
-						message.setText("Game in progress");
+						message.setText("Game is Valid");
+						message.setTextFill(Color.BLUE);
 						return true;
 					}
 				} else {
 					message.setText("Invalid move");
-
+					message.setTextFill(Color.RED);
 				}
 			}
 			// if the next disc to be put is red
@@ -117,11 +117,13 @@ public class newGame {
 						nextmove = 2;
 						disks[numOfRed] = true;
 						numOfRed++;
-						message.setText("Game in progress");
+						message.setText("Game is Valid");
+						message.setTextFill(Color.BLUE);
 						return true;
 					}
 				} else {// error
 					message.setText("Invalid move");
+					message.setTextFill(Color.RED);
 				}
 			}
 		}
@@ -154,10 +156,12 @@ public class newGame {
 	private void update() {
 		board.update();
 
-		gc.setFill(Color.GRAY);
+		gc.setFill(board.getBoardClr());
 		gc.fillRect(50, 100, 40, 200);
 		gc.fillRect(410, 100, 40, 200);
 		gc.setStroke(Color.BLACK);
+		gc.strokeRect(50, 100, 40, 200);
+		gc.strokeRect(410, 100, 40, 200);
 		for (int i = 0; i < 6; i++) {
 			gc.strokeOval(60, 115 + (i * 30), 20, 20);
 			gc.strokeOval(420, 115 + (i * 30), 20, 20);
@@ -294,7 +298,8 @@ public class newGame {
 	 * 				the message to be displayed
 	 */
 	private void dispError(String text) {
-		errorMessage.setText(text);
+		message.setText(text);
+		message.setTextFill(Color.RED);
 	}
 	
 

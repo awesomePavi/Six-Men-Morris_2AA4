@@ -95,6 +95,8 @@ public class existingGame {
 
 			}
 		});
+		//background Colour
+		scene.setFill(new Color(0.4,0.4,0.4, 1.0));
 
 		// push the scene to the window and display it
 		window.setScene(scene);
@@ -294,11 +296,13 @@ public class existingGame {
 	private void update() {
 		board.update();
 		// the red and blue disk holders
-		gc.setFill(Color.GRAY);
+		gc.setFill(board.getBoardClr());
 		gc.fillRect(50, 100, 40, 200);
 		gc.fillRect(410, 100, 40, 200);
-		// outline of the disks
 		gc.setStroke(Color.BLACK);
+		gc.strokeRect(50, 100, 40, 200);
+		gc.strokeRect(410, 100, 40, 200);
+		// outline of the disks
 		for (int i = 0; i < 6; i++) {
 			gc.strokeOval(60, 115 + (i * 30), 20, 20);
 			gc.strokeOval(420, 115 + (i * 30), 20, 20);
@@ -336,8 +340,8 @@ public class existingGame {
 	 */
 	private void dispError(String text) {
 		// erase any previous error
-		gc.setFill(Color.WHITE);
-		gc.fillRect(100, 40, 300, 10);
+		gc.setFill(new Color(0.4,0.4,0.4, 1.0));
+		gc.fillRect(100, 30, 300, 10);
 		// diplay new error
 		gc.setFill(Color.RED);
 		gc.fillText(text, 100, 40, 300);
