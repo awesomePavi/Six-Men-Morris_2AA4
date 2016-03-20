@@ -44,8 +44,13 @@ public class Menu extends Application {
 		existingGameButton.setOnAction(e -> {
 			new existingGame(window);
 		});
-		
-		
+
+		// button for continuing a game
+		Button loadGameButton = new Button("Load Existing Game");
+		// on button press pass the window on to the new existingGame class
+		loadGameButton.setOnAction(e -> {
+			new LoadSaveGame(window);
+		});
 
 		// button for exiting the menu
 		Button exit = new Button("Exit");
@@ -58,7 +63,7 @@ public class Menu extends Application {
 		VBox layout1 = new VBox(30);
 		layout1.setAlignment(Pos.CENTER);
 		// add current buttons into the layout
-		layout1.getChildren().addAll(newGameButton, existingGameButton, exit);
+		layout1.getChildren().addAll(newGameButton, existingGameButton,loadGameButton, exit);
 
 		// create new scene using current layout and display it to the window
 		Scene menu = new Scene(layout1, 500, 500);

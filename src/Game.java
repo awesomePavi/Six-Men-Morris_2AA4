@@ -4,6 +4,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -78,6 +79,19 @@ public class Game {
 		root.getChildren().add(this.canvas);
 		root.getChildren().add(message);
 		root.getChildren().add(errorMessage);
+		
+		Button saveGameButton = new Button("Save Game");
+		saveGameButton.setLayoutX(250 + saveGameButton.getWidth() / 2);
+		saveGameButton.setLayoutY(450);
+		
+		//handle button press whilst having other mosue listners
+		saveGameButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent mouseEvent) {
+			new LoadSaveGame(primaryStage, currentmove);
+			}
+		});
+		
+		root.getChildren().add(saveGameButton);
 		
 		//get scene for UI to be added
 		scene = new Scene(root);
