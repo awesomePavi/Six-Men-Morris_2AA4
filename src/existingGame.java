@@ -2,13 +2,16 @@ import java.util.Random;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +29,8 @@ public class existingGame {
 	private Canvas canvas;
 	// to allow the canvas to be manipulated
 	private GraphicsContext gc;
+	//error messages
+	private Label errorMsg;
 	// button to check and begin game
 	private Button ready;
 	// the 12 disks that may be placed, false means it has not been placed yet.
@@ -58,6 +63,14 @@ public class existingGame {
 				checkAndPLay(window);
 			}
 		});
+		
+		errorMsg = new Label("");
+		errorMsg.setLayoutX(0);
+		errorMsg.setLayoutY(0);
+		errorMsg.setMinSize(500, 50);
+		errorMsg.setAlignment(Pos.CENTER);
+		errorMsg.setFont(Font.font(20));
+		errorMsg.setTextFill(Color.RED);
 
 		// draw the window graphics
 		this.update();
@@ -67,6 +80,7 @@ public class existingGame {
 		root.getChildren().add(this.canvas);
 		root.getChildren().add(board.getCanvas());
 		root.getChildren().add(ready);
+		root.getChildren().add(errorMsg);
 
 		// add GUI to the scene
 		Scene scene = new Scene(root);
@@ -76,6 +90,7 @@ public class existingGame {
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				errorMsg.setText("");
 				// if something has already been selected then place it
 				if (selected != 0)
 					place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -340,11 +355,7 @@ public class existingGame {
 	 */
 	private void dispError(String text) {
 		// erase any previous error
-		gc.setFill(new Color(0.4,0.4,0.4, 1.0));
-		gc.fillRect(100, 30, 300, 10);
-		// diplay new error
-		gc.setFill(Color.RED);
-		gc.fillText(text, 100, 40, 300);
+		errorMsg.setText(text);
 	}
 
 	/**

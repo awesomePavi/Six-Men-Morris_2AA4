@@ -35,8 +35,8 @@ public class Game {
 	// if a player can eat other's dice
 	private boolean makeEat = false;
 	// message display
-	private Label message;
-	private Label errorMessage;
+	private Label upperMessage;
+	private Label lowerMessage;
 
 	/**
 	 * The game constructor takes in the application window and the first player
@@ -52,30 +52,25 @@ public class Game {
 		nextmove = player;
 
 		// to handle the window graphics
-		this.canvas = new Canvas(500, 500);
+		this.canvas = new Canvas(500, 400);
 		this.gc = canvas.getGraphicsContext2D();
-		board = new Board(500, 500, 100, 50);
+		board = new Board(500, 400, 100, 50);
 
-		message = new Label("Game in progress");
-		message.setLayoutX(140);
-		message.setLayoutY(360);
-		message.setMinSize(250, 50);
-		message.setAlignment(Pos.CENTER_LEFT);
-		message.setFont(Font.font(30));
+		upperMessage = new Label("");
+		upperMessage.setLayoutX(125);
+		upperMessage.setLayoutY(350);
+		upperMessage.setMinSize(250, 50);
+		upperMessage.setAlignment(Pos.CENTER);
+		upperMessage.setFont(Font.font(30));
 		
-		Label score = new Label("SCORE");
-		score.setLayoutX(200);
-		score.setLayoutY(10);
-		score.setMinSize(100, 20);
-		score.setAlignment(Pos.CENTER);
-		score.setFont(Font.font(18));
-
-		errorMessage = new Label("");
-		errorMessage.setLayoutX(200);
-		errorMessage.setLayoutY(20);
-		errorMessage.setAlignment(Pos.CENTER_LEFT);
-		errorMessage.setFont(Font.font(18));
-		errorMessage.setTextFill(Color.RED);
+		lowerMessage = new Label("");
+		lowerMessage.setLayoutX(125);
+		lowerMessage.setLayoutY(0);
+		lowerMessage.setMinSize(250, 50);
+		lowerMessage.setAlignment(Pos.CENTER);
+		lowerMessage.setFont(Font.font(30));
+		
+		dispMessage("Game In Progress");
 		// update and create the window graphics
 		update();
 
@@ -83,10 +78,8 @@ public class Game {
 		Group root = new Group();
 		root.getChildren().add(board.getCanvas());
 		root.getChildren().add(this.canvas);
-		root.getChildren().add(message);
-		root.getChildren().add(errorMessage);
-		root.getChildren().add(score);
-		
+		root.getChildren().add(upperMessage);
+		root.getChildren().add(lowerMessage);
 		Button quit = new Button("Main Menu");
 		quit.setLayoutX(0);
 		quit.setLayoutY(50);
@@ -126,6 +119,7 @@ public class Game {
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				dispMessage("Game In Progress");
 				currentmove = nextmove;
 				// cannot eat
 				if (!makeEat) {
@@ -139,6 +133,7 @@ public class Game {
 							if (Model.canEat(currentmove,
 									board.position(mouseEvent.getSceneX(), mouseEvent.getSceneY()))) {
 								makeEat = true;
+								dispMessage("Remove One Piece");
 								mouseEvent.consume();
 							}
 
@@ -239,8 +234,6 @@ public class Game {
 				nextmove = 1;
 			// no disk is selected anymore
 			selected = -1;
-			// do not show error message
-			dispError("");
 			return true;
 		}
 		dispError("Invalid Move");
@@ -256,7 +249,6 @@ public class Game {
 	 */
 	public void eat(int select) {
 		Model.setValue(select, 0);
-		dispError("");
 	}
 
 	/**
@@ -302,7 +294,10 @@ public class Game {
 	 *            the error to be displayed
 	 */
 	private void dispError(String text) {
-		errorMessage.setText(text);
+		upperMessage.setText(text);
+		lowerMessage.setText(text);
+		upperMessage.setTextFill(Color.RED);
+		lowerMessage.setTextFill(Color.RED);
 	}
 
 	/**
@@ -312,7 +307,10 @@ public class Game {
 	 *            the message to be displayed
 	 */
 	private void dispMessage(String text) {
-		message.setText(text);
+		upperMessage.setText(text);
+		lowerMessage.setText(text);
+		upperMessage.setTextFill(Color.DARKTURQUOISE);
+		lowerMessage.setTextFill(Color.DARKTURQUOISE);
 	}
 
 	/**

@@ -28,7 +28,9 @@ public class newGame {
 	private Stage window;
 	private Canvas canvas;
 	private GraphicsContext gc;
-	private Label message;
+	// message display
+	private Label upperMessage;
+	private Label lowerMessage;
 	// store the value if a disc has been put on the board
 	private boolean disks[] = { false, false, false, false, false, false, false, false, false, false, false, false };
 	// number of red and blue on the board
@@ -54,13 +56,21 @@ public class newGame {
 		board = new Board(500, 400, 100, 50);
 		
 		// message to display
-		message = new Label("Game is Valid");
-		message.setLayoutX(125);
-		message.setLayoutY(0);
-		message.setMinSize(250, 50);
-		message.setAlignment(Pos.CENTER);
-		message.setFont(Font.font(30));
-		message.setTextFill(Color.BLUE);
+		upperMessage = new Label("");
+		upperMessage.setLayoutX(125);
+		upperMessage.setLayoutY(350);
+		upperMessage.setMinSize(250, 50);
+		upperMessage.setAlignment(Pos.CENTER);
+		upperMessage.setFont(Font.font(30));
+		
+		lowerMessage = new Label("");
+		lowerMessage.setLayoutX(125);
+		lowerMessage.setLayoutY(0);
+		lowerMessage.setMinSize(250, 50);
+		lowerMessage.setAlignment(Pos.CENTER);
+		lowerMessage.setFont(Font.font(30));
+		
+		dispMessage("Game In Progress");
 		
 		// update the scene
 		this.update();
@@ -68,7 +78,8 @@ public class newGame {
 		Group root = new Group();
 		root.getChildren().add(this.canvas);
 		root.getChildren().add(board.getCanvas());
-		root.getChildren().add(message);
+		root.getChildren().add(upperMessage);
+		root.getChildren().add(lowerMessage);
 		Scene scene = new Scene(root);
 		//background Colour
 		scene.setFill(new Color(0.4,0.4,0.4, 1.0));
@@ -100,13 +111,10 @@ public class newGame {
 						nextmove = 1;
 						disks[numOfBlue + 6] = true;
 						numOfBlue++;
-						message.setText("Game is Valid");
-						message.setTextFill(Color.BLUE);
 						return true;
 					}
 				} else {
-					message.setText("Invalid move");
-					message.setTextFill(Color.RED);
+					dispError("Invalid Move");
 				}
 			}
 			// if the next disc to be put is red
@@ -117,13 +125,10 @@ public class newGame {
 						nextmove = 2;
 						disks[numOfRed] = true;
 						numOfRed++;
-						message.setText("Game is Valid");
-						message.setTextFill(Color.BLUE);
 						return true;
 					}
 				} else {// error
-					message.setText("Invalid move");
-					message.setTextFill(Color.RED);
+					dispError("Invalid Move");
 				}
 			}
 		}
@@ -196,6 +201,7 @@ public class newGame {
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				dispMessage("Game In Progress");
 				// put the disc on the board
 				int currentmove=nextmove;
 				//cannot eat
@@ -207,6 +213,7 @@ public class newGame {
 					    update();
 					    if (Model.canEat(currentmove, position)) {
 							makeEat = true;
+							dispMessage("Remove One Piece");
 						}
 					}
 					
@@ -292,14 +299,30 @@ public class newGame {
 	}
 	
 	/**
-	 * This function manipulate the content of Label errorMessage and display the error message 
+	 * used to display error's above the board, erases previous message on new
+	 * message
 	 * 
 	 * @param text
-	 * 				the message to be displayed
+	 *            the error to be displayed
 	 */
 	private void dispError(String text) {
-		message.setText(text);
-		message.setTextFill(Color.RED);
+		upperMessage.setText(text);
+		lowerMessage.setText(text);
+		upperMessage.setTextFill(Color.RED);
+		lowerMessage.setTextFill(Color.RED);
+	}
+
+	/**
+	 * used to display message above the board, erases previous message.
+	 * 
+	 * @param text
+	 *            the message to be displayed
+	 */
+	private void dispMessage(String text) {
+		upperMessage.setText(text);
+		lowerMessage.setText(text);
+		upperMessage.setTextFill(Color.DARKTURQUOISE);
+		lowerMessage.setTextFill(Color.DARKTURQUOISE);
 	}
 	
 
