@@ -37,11 +37,11 @@ public class Menu extends Application {
 	 * The sets up application on start
 	 */
 	public void start(Stage window) {
+		//set window title
 		window.setTitle("Six Men's Morris");
+		//title and creators in the window top section
 		Text title = new Text("Six Men's Morris");
 		title.setFont(Font.font("Verdana",40));
-		title.setX(10.0f);
-		title.setY(10.0f);
 		Text creator = new Text("Emily Ashworth - Ziyi Jin - Pavi Pathmarajah");
 		creator.setFont(Font.font("Verdana",15));
 
@@ -73,6 +73,7 @@ public class Menu extends Application {
 			Platform.exit();
 		});
 		
+		//make all the buttons the same size
 		newGameButton.setMinWidth(200);
 		existingGameButton.setMinWidth(200);
 		loadGameButton.setMinWidth(200);
@@ -93,11 +94,4 @@ public class Menu extends Application {
 		window.setScene(menu);
 		window.show();
 	}
-	
-	private void update() {
-		
-	}
-	
-	
-
 }

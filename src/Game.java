@@ -56,6 +56,7 @@ public class Game {
 		this.gc = canvas.getGraphicsContext2D();
 		board = new Board(500, 400, 100, 50);
 
+		//GUI messages to user on the upper and lower half of the game
 		upperMessage = new Label("");
 		upperMessage.setLayoutX(125);
 		upperMessage.setLayoutY(350);
@@ -183,10 +184,10 @@ public class Game {
 				// check wins
 				int win = Model.checkWin(nextmove);
 				if (win == 1) {
-					dispMessage("Red wins");
+					new GameOver(primaryStage,1);
 				}
 				if (win == 2) {
-					dispMessage("Blue wins");
+					new GameOver(primaryStage,2);
 				}
 			}
 		});

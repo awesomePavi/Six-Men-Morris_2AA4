@@ -210,7 +210,7 @@ public class Model {
 			if (boardPositions[5] == 0 || boardPositions[9] == 0 && boardPositions[12] == 0) return false;
 		}
 		if (boardPositions[9] == player) {
-			if (boardPositions[2] == 0 || boardPositions[8] != 0 || boardPositions[15] == 0)return false;
+			if (boardPositions[2] == 0 || boardPositions[8] == 0 || boardPositions[15] == 0)return false;
 		}
 		if (boardPositions[10] == player) {
 			if (boardPositions[7] == 0 || boardPositions[11] == 0) return false;
