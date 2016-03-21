@@ -54,14 +54,14 @@ public class Menu extends Application {
 
 		// button for continuing a game
 		Button existingGameButton = new Button("Play Existing Game");
-		// on button press pass the window on to the new existingGame class
+		// on button press pass the window on to the existingGame class
 		existingGameButton.setOnAction(e -> {
 			new existingGame(window);
 		});
 
-		// button for continuing a game
+		// button for continuing a saved game
 		Button loadGameButton = new Button("Load Existing Game");
-		// on button press pass the window on to the new existingGame class
+		// on button press pass the window on to the load game class
 		loadGameButton.setOnAction(e -> {
 			new LoadSaveGame(window);
 		});

@@ -57,6 +57,7 @@ public class existingGame {
 		ready.setLayoutX(125);
 		ready.setLayoutY(375);
 		ready.setMinSize(250, 100);
+		//when user presses button check if the baord is valid and continue accordingly
 		ready.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -64,6 +65,7 @@ public class existingGame {
 			}
 		});
 		
+		//error message to display on the top of the board, none at the start
 		errorMsg = new Label("");
 		errorMsg.setLayoutX(0);
 		errorMsg.setLayoutY(0);

@@ -15,6 +15,7 @@ import javafx.stage.Stage;
  * This is the end-game menu, which is lead to by either a win or a draw
  * 
  * @author Pavithran Pathmarajah
+ * @version A2
  */
 public class GameOver {
 	/**
@@ -30,6 +31,7 @@ public class GameOver {
 	public GameOver(Stage window, int win) {
 		Group root = new Group();
 		Scene scene = new Scene(root);
+		
 		// Message To user
 		Label userMessage = new Label("");
 		// the minsize forces the window to be 400 x 200
@@ -95,6 +97,7 @@ public class GameOver {
 			// add grpahical background
 			root.getChildren().add(canvas);
 		}
+		
 		// add message and than button, if not than the button is unclicable,
 		// since the text covers the entire area
 		root.getChildren().add(userMessage);

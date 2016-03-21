@@ -50,56 +50,55 @@ public class Game {
 	public Game(Stage primaryStage, int player) {
 		// current players move
 		nextmove = player;
+		// interface root to add features to
+		Group root = new Group();
+		// get scene for UI to be added
+		scene = new Scene(root);
 
 		// to handle the window graphics
 		this.canvas = new Canvas(500, 400);
 		this.gc = canvas.getGraphicsContext2D();
 		board = new Board(500, 400, 100, 50);
 
-		//GUI messages to user on the upper and lower half of the game
+		// GUI messages to user on the upper and lower half of the game
+		// displays game state and any errors
 		upperMessage = new Label("");
 		upperMessage.setLayoutX(0);
 		upperMessage.setLayoutY(350);
 		upperMessage.setMinSize(500, 50);
 		upperMessage.setAlignment(Pos.CENTER);
 		upperMessage.setFont(Font.font(30));
-		
 		lowerMessage = new Label("");
 		lowerMessage.setLayoutX(0);
 		lowerMessage.setLayoutY(0);
 		lowerMessage.setMinSize(500, 50);
 		lowerMessage.setAlignment(Pos.CENTER);
 		lowerMessage.setFont(Font.font(30));
-		
+		// set current message
 		dispMessage("Game In Progress");
-		// update and create the window graphics
-		update();
 
-		// add graphics objects to window
-		Group root = new Group();
-		root.getChildren().add(board.getCanvas());
-		root.getChildren().add(this.canvas);
-		root.getChildren().add(upperMessage);
-		root.getChildren().add(lowerMessage);
-		Button quit = new Button("Main Menu");
-		quit.setLayoutX(0);
-		quit.setLayoutY(50);
-		quit.setMinHeight(300);
-		quit.setMinWidth(90);
-		quit.setFocusTraversable(false);
+		// the main menu button from the game, on left side of board, with board
+		// height
+		Button maineMenuButton = new Button("Main Menu");
+		maineMenuButton.setLayoutX(0);
+		maineMenuButton.setLayoutY(50);
+		maineMenuButton.setMinHeight(300);
+		maineMenuButton.setMinWidth(90);
+		// so the button is not highlighted
+		maineMenuButton.setFocusTraversable(false);
 
 		// handle button press whilst having other mosue listners
-		quit.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		maineMenuButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent mouseEvent) {
+				// reset all game states, to allow for a new game
 				Model.reset();
-				Model.checkWin(nextmove);
-				//go back to main menu
+				// go back to main menu
 				new Menu().start(primaryStage);
 			}
 		});
 
-		root.getChildren().add(quit);
-
+		// this button saves the game and retunrs to the main menu, right side
+		// of game board
 		Button saveGameButton = new Button("Save Game");
 		saveGameButton.setLayoutX(410);
 		saveGameButton.setLayoutY(50);
@@ -110,14 +109,12 @@ public class Game {
 		// handle button press whilst having other mosue listners
 		saveGameButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent mouseEvent) {
-				new LoadSaveGame(primaryStage, currentmove);
+				// save current game than go back to main menu
+				new LoadSaveGame(primaryStage, nextmove);
 			}
 		});
 
-		root.getChildren().add(saveGameButton);
-
-		// get scene for UI to be added
-		scene = new Scene(root);
+		// add mousepress events for actual game piece interaction
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
@@ -182,13 +179,14 @@ public class Game {
 
 				}
 				update();
-				// check wins
+				// check for a winner or a draw, 3 is a draw
 				int win = Model.checkWin(nextmove);
-				if (win == 1 || win ==2 || win ==3) {
-					new GameOver(primaryStage,win);
+				if (win == 1 || win == 2 || win == 3) {
+					new GameOver(primaryStage, win);
 				}
 			}
 		});
+
 		/*
 		 * add a listner for mouse movement, to highlight anything the mouse is
 		 * over, so the user knows that it may be selected
@@ -200,9 +198,19 @@ public class Game {
 			}
 		});
 
+		// add Graphics to the root panel
+		root.getChildren().add(board.getCanvas());
+		root.getChildren().add(this.canvas);
+		root.getChildren().add(upperMessage);
+		root.getChildren().add(lowerMessage);
+		root.getChildren().add(maineMenuButton);
+		root.getChildren().add(saveGameButton);
+		// update to show current board info
+		update();
 		// background Colour
 		scene.setFill(new Color(0.4, 0.4, 0.4, 1.0));
 
+		// set the window and show the graphics
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
@@ -226,8 +234,8 @@ public class Game {
 			// place the player's piece and remove it from the last position
 			Model.setValue(toPlace, nextmove);
 			Model.setValue(selected, 0);
-			//move that was made, {colour,from, to}
-			int[] move = {nextmove,selected,toPlace};
+			// move that was made, {colour,from, to}
+			int[] move = { nextmove, selected, toPlace };
 			Model.trackMoves(move);
 			// change the current player's move state
 			if (nextmove == 1)
@@ -251,6 +259,7 @@ public class Game {
 	 */
 	public void eat(int select) {
 		Model.setValue(select, 0);
+		Model.moveTrackReset();
 	}
 
 	/**
@@ -289,8 +298,7 @@ public class Game {
 	}
 
 	/**
-	 * used to display error's above the board, erases previous message on new
-	 * message
+	 * Displayes the given error message above and below the board in red
 	 * 
 	 * @param text
 	 *            the error to be displayed
@@ -303,7 +311,7 @@ public class Game {
 	}
 
 	/**
-	 * used to display message above the board, erases previous message.
+	 * dispalys the messages above and below the board in blue
 	 * 
 	 * @param text
 	 *            the message to be displayed

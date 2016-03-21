@@ -8,7 +8,10 @@ import java.util.ArrayList;
  */
 public class Model {
 
+	// keep track of disk status on board 0 = none, 1 =red, 2 = blue
 	private static int boardPositions[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	// takes in arrays of 3 to keep track of previous moved, to check for cycles
+	// and thus draws
 	private static ArrayList<int[]> moveHistory = new ArrayList();
 	private static int error = 0;
 
@@ -33,6 +36,7 @@ public class Model {
 
 	/**
 	 * This function returns the entirety of the board positions as requested
+	 * Also restes the move history back to blank
 	 * 
 	 * @return the boardPositions array that holds all the position values
 	 */
@@ -41,6 +45,24 @@ public class Model {
 			boardPositions[i] = 0;
 		}
 		moveHistory = new ArrayList();
+	}
+
+	/**
+	 * Resets the move history list to a fresh one, called on disk removal since
+	 * anything prior will not be considered in a cycle check for a draw
+	 */
+	public static void moveTrackReset() {
+		moveHistory = new ArrayList();
+	}
+
+	/**
+	 * getter for the history list so that, the save game can keep track of
+	 * possible cyclic patterns
+	 * 
+	 * @return the moveHistory list
+	 */
+	public static ArrayList<int[]> getMoveTrackingList() {
+		return moveHistory;
 	}
 
 	/**
@@ -79,6 +101,11 @@ public class Model {
 		boardPositions[pos] = val;
 	}
 
+	/**
+	 * this function takes in a triple and pushes it to the list of move history
+	 * 
+	 * @param move the move that was just made as a triple {player, old position, new position}
+	 */
 	public static void trackMoves(int[] move) {
 		moveHistory.add(move);
 	}
@@ -290,54 +317,49 @@ public class Model {
 		if (isBlocked(boardPositions, 2) && mover == 2)
 			return 1; // blue is blocked, red wins,return 1.
 
-		// if there is a draw
-		if (checkDraw(mover))
+		// check if there is a draw
+		if (checkDraw())
 			return 3;
 
 		return 0; // no one wins
 	}
 
 	/**
-	 * Six men-morris a draw is established if cyclical game play occurs
-	 * 
-	 * @param mover
-	 *            - the current person turns
+	 * Six men-morris a draw is established if cyclical game play occurs, with a cycle size of 3
 	 */
-	private static boolean checkDraw(int mover) {
-		System.out.println("------------------------------------------");
-		System.out.println("hi" + moveHistory.size());
-		/*for (int i=0; i<moveHistory.size();i++ ){
-			System.out.print(i+" |");
-			int [] tmp = moveHistory.get(i);
-			for (int j=0;j<tmp.length;j++){
-				System.out.print(" "+tmp[j]);
-			}
-			System.out.println();
-		}*/
-		// look for a pattern, minimum size is 3
-		for (int sampleSize = 2; sampleSize <= (moveHistory.size() / 2); sampleSize+=2) {
-
-			boolean draw = true;
-			System.out.println("-----------sampleSize-------------" + sampleSize);
-			for (int i = 0; (i+ sampleSize) < moveHistory.size(); i++) {
-				int[] curCycle = moveHistory.get(i);
-				int[] pastCycle = moveHistory.get(i + sampleSize);
-				if (curCycle[0]!=pastCycle[0] || curCycle[1]!=pastCycle[1] ||  curCycle[2]!=pastCycle[2])
-					draw=false;
-				for (int j = 0; j < curCycle.length; j++) {
-					System.out.print(" " + curCycle[j]);
+	private static boolean checkDraw() {
+		/*
+		 * the method finds a pattern by looking through all moves since the start of the game or since the last mill,
+		 * a pattern is identified if a point in the moveHistory list (i) and a point that is a specfic distance (sampleSize) away all match up.
+		 * Proving that a cycle occured over that (sample size) the length of that cycle being of (sampleSize)
+		 */
+		//the sample size, since a cycle must occur 3 times, the max smaple size is 1/3 of the history of moves made
+		for (int sampleSize = 2; sampleSize <= (moveHistory.size() / 3); sampleSize += 2) {
+			//since list uses fifo, we move forward intime looking for cycles
+			for (int startPos = 0; (moveHistory.size() - startPos) >= 3 * sampleSize; startPos++) {
+				//a draw is considered to occur until proven that this smaple size dos not yield 3 cycles
+				boolean draw = true;
+				// look through this sample area for three cycles
+				for (int i = startPos; ((i + 2 * sampleSize) < moveHistory.size()) && (i < startPos + sampleSize)  ; i++) {
+					//cycle one info triple (current most recent info)
+					int[] curCycle = moveHistory.get(i+ 2 * sampleSize);
+					//cycle two info triple
+					int[] pastCycle1 = moveHistory.get(i + sampleSize);
+					//cycle three info triple
+					int[] pastCycle2 = moveHistory.get(i);
+					//check if all three pieces of info {move, oldpos ,new pos} line up across all three cycles, if so the cycle is not a cycle
+					if (curCycle[0] != pastCycle1[0] || curCycle[1] != pastCycle1[1] || curCycle[2] != pastCycle1[2]
+							|| curCycle[0] != pastCycle2[0] || curCycle[1] != pastCycle2[1]
+							|| curCycle[2] != pastCycle2[2])
+						draw = false;
 				}
-				System.out.print(" |");
-				for (int j = 0; j < pastCycle.length; j++) {
-					System.out.print(" " + pastCycle[j]);
+				//if a draw is found return true a draw is found
+				if (draw) {
+					return true;
 				}
-				System.out.println();
-			}
-			if (draw){
-				System.out.println("yo");
-				return true;
 			}
 		}
+		//after an exhastive search no draw was found
 		return false;
 	}
 
@@ -626,5 +648,4 @@ public class Model {
 		}
 		return false;
 	}
-
 }

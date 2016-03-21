@@ -18,6 +18,11 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
+ * This class randomly selects a first player, and than allows the users to
+ * palce their disks down after each other, if a player gets a mill they ahve
+ * the ability to remove another player's peice once all 6 pieces are aplced the
+ * game will be passed to the game class and execution will continue their
+ * 
  * 
  * @author Ziyi Jin
  * @version A2
@@ -38,11 +43,10 @@ public class newGame {
 	private int numOfBlue = 0;
 	// next disc player to move,1 for red,2 for blue
 	private int nextmove = 1;
-	//can a player eat other's dice
-	private boolean makeEat=false;
-	//the index of dice be chosen to be ate
+	// can a player eat other's dice
+	private boolean makeEat = false;
+	// the index of dice be chosen to be ate
 	private int chooseToEat;
-	
 
 	/**
 	 * 
@@ -54,7 +58,7 @@ public class newGame {
 		this.canvas = new Canvas(500, 400);
 		this.gc = canvas.getGraphicsContext2D();
 		board = new Board(500, 400, 100, 50);
-		
+
 		// message to display
 		upperMessage = new Label("");
 		upperMessage.setLayoutX(125);
@@ -62,16 +66,16 @@ public class newGame {
 		upperMessage.setMinSize(250, 50);
 		upperMessage.setAlignment(Pos.CENTER);
 		upperMessage.setFont(Font.font(30));
-		
+
 		lowerMessage = new Label("");
 		lowerMessage.setLayoutX(125);
 		lowerMessage.setLayoutY(0);
 		lowerMessage.setMinSize(250, 50);
 		lowerMessage.setAlignment(Pos.CENTER);
 		lowerMessage.setFont(Font.font(30));
-		
+
 		dispMessage("Game In Progress");
-		
+
 		// update the scene
 		this.update();
 
@@ -81,9 +85,9 @@ public class newGame {
 		root.getChildren().add(upperMessage);
 		root.getChildren().add(lowerMessage);
 		Scene scene = new Scene(root);
-		//background Colour
-		scene.setFill(new Color(0.4,0.4,0.4, 1.0));
-	 
+		// background Colour
+		scene.setFill(new Color(0.4, 0.4, 0.4, 1.0));
+
 		// run the game
 		playgame(scene);
 
@@ -203,56 +207,56 @@ public class newGame {
 			public void handle(MouseEvent mouseEvent) {
 				dispMessage("Game In Progress");
 				// put the disc on the board
-				int currentmove=nextmove;
-				//cannot eat
-				if(!makeEat){
-					int position=board.position(mouseEvent.getSceneX(),mouseEvent.getSceneY());
-					boolean hasPlaced=place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+				int currentmove = nextmove;
+				// cannot eat
+				if (!makeEat) {
+					int position = board.position(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+					boolean hasPlaced = place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 					mouseEvent.consume();
-					if(hasPlaced){
-					    update();
-					    if (Model.canEat(currentmove, position)) {
+					if (hasPlaced) {
+						update();
+						if (Model.canEat(currentmove, position)) {
 							makeEat = true;
 							dispMessage("Remove One Piece");
 						}
 					}
-					
+
 				}
-				//can eat
-				else{
-					chooseToEat = select(mouseEvent.getSceneX(),mouseEvent.getSceneY());
+				// can eat
+				else {
+					chooseToEat = select(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 					mouseEvent.consume();
-					
-					//choose a valid dice to eat
-					if(chooseToEat!=-1){
-						int toEat=Model.valueAt(chooseToEat);
-						//choose the right dice to eat
-						if(toEat==nextmove){
-							//the chosen opponent's dice can be ate 
-							if(Model.canBeAte(chooseToEat,nextmove)){
+
+					// choose a valid dice to eat
+					if (chooseToEat != -1) {
+						int toEat = Model.valueAt(chooseToEat);
+						// choose the right dice to eat
+						if (toEat == nextmove) {
+							// the chosen opponent's dice can be ate
+							if (Model.canBeAte(chooseToEat, nextmove)) {
 								eat(chooseToEat);
 								update();
 								makeEat = false;
-								
+
 							}
-							//the chosen opponent's dice cannot be ate 
-							else{
-								dispError("Invalid Move");
-								
+							// the chosen opponent's dice cannot be ate
+							else {
+								dispError("Cannot Eat from Mill");
+
 							}
 						}
 					}
-					//choose an invalid dice to eat
-					else{
-						dispError("Invalid Move");			
-                    }
+					// choose an invalid dice to eat
+					else {
+						dispError("Cannot Eat Self");
+					}
 				}
-				//check if all the 12 dices has be put on the board
-				if ((numOfRed + numOfBlue) == 12 && !makeEat){
-					//move on to the next stage
-				    new Game(window,nextmove);
+				// check if all the 12 dices has be put on the board
+				if ((numOfRed + numOfBlue) == 12 && !makeEat) {
+					// move on to the next stage
+					new Game(window, nextmove);
 				}
-				
+
 			}
 		});
 
@@ -268,36 +272,39 @@ public class newGame {
 	}
 
 	/**
-	 * This function takes the number of dice to be eat and perform the eat operation
+	 * This function takes the number of dice to be eat and perform the eat
+	 * operation
 	 * 
 	 * @param select
-	 * 				the index of the dice to eat 
+	 *            the index of the dice to eat
 	 */
-	public void eat(int select){
+	public void eat(int select) {
 		Model.setValue(select, 0);
 		dispError("");
 	}
-	
+
 	/**
-	 * This function takes i nthe mosue location and returns the disk the user has selcted if it is their own disk
+	 * This function takes i nthe mosue location and returns the disk the user
+	 * has selcted if it is their own disk
 	 * 
-		 * @param x
+	 * @param x
 	 *            the mouse x position relative to the canvas
 	 * @param y
 	 *            the mouse y position relative to the canvas
 	 * @return the disk the user has selected if the chosen disk was their's
 	 */
 	private int select(double x, double y) {
-		//selected disk
+		// selected disk
 		int toSelect = board.position(x, y);
-		//if the disk belongs to the user and the mouse is on a position than return
-		if (toSelect >=0 && Model.valueAt(toSelect) == nextmove)
+		// if the disk belongs to the user and the mouse is on a position than
+		// return
+		if (toSelect >= 0 && Model.valueAt(toSelect) == nextmove)
 			return toSelect;
-		//if the user selected a disk that is not their's or no disk at all
+		// if the user selected a disk that is not their's or no disk at all
 		dispError("Invalid piece");
 		return -1;
 	}
-	
+
 	/**
 	 * used to display error's above the board, erases previous message on new
 	 * message
@@ -324,6 +331,5 @@ public class newGame {
 		upperMessage.setTextFill(Color.DARKTURQUOISE);
 		lowerMessage.setTextFill(Color.DARKTURQUOISE);
 	}
-	
 
 }
