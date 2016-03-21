@@ -1,6 +1,7 @@
 
 /**
- * Write what the purpose of this class is
+ * This class ensures the validity of gameplay and that the rules of the game are followed.
+ * It makes sure moves are allowed and checks if the game is over.
  * 
  * @author Emily Ashworth, Pavithran Pathmarajah
  * @version A1
