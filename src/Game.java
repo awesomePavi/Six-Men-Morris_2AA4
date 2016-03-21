@@ -58,16 +58,16 @@ public class Game {
 
 		//GUI messages to user on the upper and lower half of the game
 		upperMessage = new Label("");
-		upperMessage.setLayoutX(125);
+		upperMessage.setLayoutX(0);
 		upperMessage.setLayoutY(350);
-		upperMessage.setMinSize(250, 50);
+		upperMessage.setMinSize(500, 50);
 		upperMessage.setAlignment(Pos.CENTER);
 		upperMessage.setFont(Font.font(30));
 		
 		lowerMessage = new Label("");
-		lowerMessage.setLayoutX(125);
+		lowerMessage.setLayoutX(0);
 		lowerMessage.setLayoutY(0);
-		lowerMessage.setMinSize(250, 50);
+		lowerMessage.setMinSize(500, 50);
 		lowerMessage.setAlignment(Pos.CENTER);
 		lowerMessage.setFont(Font.font(30));
 		
@@ -92,6 +92,7 @@ public class Game {
 		quit.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent mouseEvent) {
 				Model.reset();
+				Model.checkWin(nextmove);
 				//go back to main menu
 				new Menu().start(primaryStage);
 			}
@@ -169,25 +170,22 @@ public class Game {
 							}
 							// the chosen opponent's dice cannot be ate
 							else {
-								dispError("Invalid Move");
+								dispError("Cannot Eat from Mill");
 
 							}
 						}
 					}
 					// choose an invalid dice to eat
 					else {
-						dispError("Invalid Move");
+						dispError("Cannot Eat Self");
 					}
 
 				}
 				update();
 				// check wins
 				int win = Model.checkWin(nextmove);
-				if (win == 1) {
-					new GameOver(primaryStage,1);
-				}
-				if (win == 2) {
-					new GameOver(primaryStage,2);
+				if (win == 1 || win ==2 || win ==3) {
+					new GameOver(primaryStage,win);
 				}
 			}
 		});
@@ -228,6 +226,9 @@ public class Game {
 			// place the player's piece and remove it from the last position
 			Model.setValue(toPlace, nextmove);
 			Model.setValue(selected, 0);
+			//move that was made, {colour,from, to}
+			int[] move = {nextmove,selected,toPlace};
+			Model.trackMoves(move);
 			// change the current player's move state
 			if (nextmove == 1)
 				nextmove = 2;
