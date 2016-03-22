@@ -50,7 +50,7 @@ public class LoadSaveGame {
 	 * @param window,
 	 *            to extrapolate game data too and create an output file
 	 */
-	public void load(Stage window) {
+	private void load(Stage window) {
 		// if the data-file does not exist go back to main menu
 		try {
 			// data from file to be held
@@ -99,7 +99,7 @@ public class LoadSaveGame {
 	 * @param playerTurn
 	 *            the current players turn in the game
 	 */
-	public void save(int playerTurn) {
+	private void save(int playerTurn) {
 		// try and catch used to supress warnings
 		try {
 			// the get the board data to be written
