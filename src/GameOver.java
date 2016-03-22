@@ -21,7 +21,7 @@ public class GameOver {
 	/**
 	 * The constructor takes in the run window and an integer which will
 	 * determine if it was a win or a draw, the screen will have a simple
-	 * statment and a a main menu button
+	 * statement and a a main menu button
 	 * 
 	 * @param window
 	 *            - the run window for IO
