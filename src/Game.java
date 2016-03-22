@@ -257,7 +257,7 @@ public class Game {
 	 * @param select
 	 *            the index of the dice to eat
 	 */
-	public void eat(int select) {
+	private void eat(int select) {
 		Model.setValue(select, 0);
 		Model.moveTrackReset();
 	}
