@@ -1,25 +1,20 @@
-import java.io.File;
-import java.util.Random;
-
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 /**
  * This class is used to draw the board, the Game; newGame; and existingGame It
  * is a helper to minimize redundancy
  * 
  * @author Pavithran Pathmarajah
- * @version A1
+ * @version A2
  */
 public class Board {
 	private Canvas canvas;
 	private GraphicsContext gc;
+	//board colour
+	private Color boardClr = new Color(1.0,0.94901960784,0.80784313725, 1.0);
+	
 	//the offset of the board
 	private double x = 0;
 	private double y = 0;
@@ -87,6 +82,10 @@ public class Board {
 		this.canvas = new Canvas(sizex, sizey);
 		gc = canvas.getGraphicsContext2D();
 	}
+	
+	public Color getBoardClr(){
+		return boardClr;
+	}
 
 	/**
 	 * This function updates the board and the positions on it
@@ -94,7 +93,7 @@ public class Board {
 	public void update() {
 		// open the board png taken from the assignment
 		//used image for board was unable to use aimge once in jar runanble file hand coded board
-		gc.setFill(new Color(1.0,0.94901960784,0.80784313725, 1.0));
+		gc.setFill(boardClr);
 		gc.fillRect(x+posDiskX[0]+6.25, y+posDiskY[0]+6.25, 287.5, 287.5);
 		gc.setStroke(Color.BLACK);
 		gc.strokeLine(x+posDiskX[0]+6.25, y+posDiskY[0]+6.25, x+posDiskX[2]+6.25, y+posDiskY[2]+6.25);

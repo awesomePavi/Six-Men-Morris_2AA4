@@ -2,13 +2,16 @@ import java.util.Random;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +29,8 @@ public class existingGame {
 	private Canvas canvas;
 	// to allow the canvas to be manipulated
 	private GraphicsContext gc;
+	//error messages
+	private Label errorMsg;
 	// button to check and begin game
 	private Button ready;
 	// the 12 disks that may be placed, false means it has not been placed yet.
@@ -52,12 +57,22 @@ public class existingGame {
 		ready.setLayoutX(125);
 		ready.setLayoutY(375);
 		ready.setMinSize(250, 100);
+		//when user presses button check if the baord is valid and continue accordingly
 		ready.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				checkAndPLay(window);
 			}
 		});
+		
+		//error message to display on the top of the board, none at the start
+		errorMsg = new Label("");
+		errorMsg.setLayoutX(0);
+		errorMsg.setLayoutY(0);
+		errorMsg.setMinSize(500, 50);
+		errorMsg.setAlignment(Pos.CENTER);
+		errorMsg.setFont(Font.font(20));
+		errorMsg.setTextFill(Color.RED);
 
 		// draw the window graphics
 		this.update();
@@ -67,6 +82,7 @@ public class existingGame {
 		root.getChildren().add(this.canvas);
 		root.getChildren().add(board.getCanvas());
 		root.getChildren().add(ready);
+		root.getChildren().add(errorMsg);
 
 		// add GUI to the scene
 		Scene scene = new Scene(root);
@@ -76,6 +92,7 @@ public class existingGame {
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
+				errorMsg.setText("");
 				// if something has already been selected then place it
 				if (selected != 0)
 					place(mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -95,6 +112,8 @@ public class existingGame {
 
 			}
 		});
+		//background Colour
+		scene.setFill(new Color(0.4,0.4,0.4, 1.0));
 
 		// push the scene to the window and display it
 		window.setScene(scene);
@@ -294,11 +313,13 @@ public class existingGame {
 	private void update() {
 		board.update();
 		// the red and blue disk holders
-		gc.setFill(Color.GRAY);
+		gc.setFill(board.getBoardClr());
 		gc.fillRect(50, 100, 40, 200);
 		gc.fillRect(410, 100, 40, 200);
-		// outline of the disks
 		gc.setStroke(Color.BLACK);
+		gc.strokeRect(50, 100, 40, 200);
+		gc.strokeRect(410, 100, 40, 200);
+		// outline of the disks
 		for (int i = 0; i < 6; i++) {
 			gc.strokeOval(60, 115 + (i * 30), 20, 20);
 			gc.strokeOval(420, 115 + (i * 30), 20, 20);
@@ -336,11 +357,7 @@ public class existingGame {
 	 */
 	private void dispError(String text) {
 		// erase any previous error
-		gc.setFill(Color.WHITE);
-		gc.fillRect(100, 40, 300, 10);
-		// diplay new error
-		gc.setFill(Color.RED);
-		gc.fillText(text, 100, 40, 300);
+		errorMsg.setText(text);
 	}
 
 	/**
