@@ -1,7 +1,12 @@
 /Board.class
 /Game$1.class
 /Game$2.class
+/Game$3.class
+/Game$4.class
 /Game.class
+/GameOver$1.class
+/GameOver.class
+/LoadSaveGame.class
 /Menu.class
 /Model.class
 /existingGame$1.class
@@ -11,5 +16,3 @@
 /newGame$1.class
 /newGame$2.class
 /newGame.class
-/LoadSaveGame.class
-/Game$3.class
