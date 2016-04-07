@@ -86,7 +86,7 @@ public class LoadSaveGame {
 			buffRead.close();
 			read.close();
 			// begin game, from previously saved state
-			new Game(window, player);
+			new Game(window, player,false);
 		} catch (Exception e) {
 			new Menu().start(window);
 		}

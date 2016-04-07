@@ -49,8 +49,16 @@ public class Menu extends Application {
 		Button newGameButton = new Button("Play New Game");
 		// on button press pass the window on to the newGame class
 		newGameButton.setOnAction(e -> {
-			new newGame(window);
+			new newGame(window,false);
 		});
+		
+		// button for new game against AI
+		Button newAIGameButton = new Button("Play New Game with AI");
+		// on button press pass the window on to the newGame class
+		newAIGameButton.setOnAction(e -> {
+			new newGame(window,true);
+		});
+
 
 		// button for continuing a game
 		Button existingGameButton = new Button("Play Existing Game");
@@ -75,6 +83,7 @@ public class Menu extends Application {
 		
 		//make all the buttons the same size
 		newGameButton.setMinWidth(200);
+		newAIGameButton.setMinWidth(200);
 		existingGameButton.setMinWidth(200);
 		loadGameButton.setMinWidth(200);
 		exit.setMinWidth(200);
@@ -83,7 +92,7 @@ public class Menu extends Application {
 		VBox layout1 = new VBox(30);
 		layout1.setAlignment(Pos.CENTER);
 		// add current buttons into the layout
-		layout1.getChildren().addAll(title, creator,newGameButton, existingGameButton,loadGameButton, exit);
+		layout1.getChildren().addAll(title, creator,newGameButton, newAIGameButton, existingGameButton,loadGameButton, exit);
 
 		// create new scene using current layout and display it to the window
 		Scene menu = new Scene(layout1, 500, 500);

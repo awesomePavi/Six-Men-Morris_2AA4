@@ -1,7 +1,6 @@
 import java.util.Random;
 
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -9,13 +8,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.util.Iterator;
 
 /**
  * This class randomly selects a first player, and than allows the users to
@@ -46,15 +42,23 @@ public class newGame {
 	// can a player eat other's dice
 	private boolean makeEat = false;
 	// the index of dice be chosen to be ate
-	private int chooseToEat;
+	private int chooseToEat;	
+	//determine if AI is playing
+	boolean AI_=false;
+	//ranodm nums
+	Random rand;
 
 	/**
 	 * 
 	 * @param primaryStage
 	 *            - main display window of new game
 	 */
-	public newGame(Stage primaryStage) {
-
+	public newGame(Stage primaryStage,boolean AI) {
+		
+		AI_=AI;
+		if (AI_)
+			AI_3MenMorris.initalize();
+		
 		this.canvas = new Canvas(500, 400);
 		this.gc = canvas.getGraphicsContext2D();
 		board = new Board(500, 400, 100, 50);
@@ -112,9 +116,9 @@ public class newGame {
 				if (Model.isPossiblePlace(Model.getCurBoard(), board.position(x, y))) {
 					if (numOfBlue < 6) {
 						Model.setValue(board.position(x, y), 2);
-						nextmove = 1;
 						disks[numOfBlue + 6] = true;
 						numOfBlue++;
+						nextmove = incrTurn(nextmove);
 						return true;
 					}
 				} else {
@@ -126,9 +130,9 @@ public class newGame {
 				if (Model.isPossiblePlace(Model.getCurBoard(), board.position(x, y))) {
 					if (numOfRed < 6) {
 						Model.setValue(board.position(x, y), 1);
-						nextmove = 2;
 						disks[numOfRed] = true;
 						numOfRed++;
+						nextmove =  incrTurn(nextmove);
 						return true;
 					}
 				} else {// error
@@ -194,12 +198,15 @@ public class newGame {
 	 */
 	private void playgame(Scene scene) {
 		// randomly select a color to start
-		Random random = new Random();
-		int nextturn = random.nextInt(2);
-		if (nextturn == 0)
-			nextmove = 1;// the 'red' disc player takes the next move
-		else if (nextturn == 1)
-			nextmove = 2;// the 'blue' disc player takes the next move
+		rand= new Random();
+		nextmove = 1;//rand.nextInt(2)+1;
+		//if player 2's turn and battling an AI
+		if (nextmove==2 && AI_){
+			//the AI amkes i't's move and returns it back to the user
+			AIPlace();
+			nextmove = 1;
+		}
+			
 
 		// handle mouse input
 		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
@@ -216,6 +223,8 @@ public class newGame {
 					if (hasPlaced) {
 						update();
 						if (Model.canEat(currentmove, position)) {
+							if (AI_)
+								nextmove=2;
 							makeEat = true;
 							dispMessage("Remove One Piece");
 						}
@@ -254,7 +263,7 @@ public class newGame {
 				// check if all the 12 dices has be put on the board
 				if ((numOfRed + numOfBlue) == 12 && !makeEat) {
 					// move on to the next stage
-					new Game(window, nextmove);
+					new Game(window, nextmove,AI_);
 				}
 
 			}
@@ -330,6 +339,159 @@ public class newGame {
 		lowerMessage.setText(text);
 		upperMessage.setTextFill(Color.DARKTURQUOISE);
 		lowerMessage.setTextFill(Color.DARKTURQUOISE);
+	}
+	
+	private int incrTurn(int curturn){
+		if (curturn ==1 && AI_){
+			AIPlace();
+			return 1;
+		}
+		
+		if (curturn ==1 ){
+			return 2;
+		}else{
+			return 1;
+		}
+	}
+	
+	private void AIPlace(){
+		int toSelect = rand.nextInt(16);
+		int[] board = Model.getCurBoard();
+		//if AI's first turn
+		if (numOfBlue==0){
+			System.out.println("AI Makes First Move");
+			while (board[toSelect] != 0 || AI_3MenMorris.getAdj(toSelect).length!=2){
+				toSelect = rand.nextInt(16);
+			}
+			Model.setValue(toSelect, 2);
+			disks[numOfBlue + 6] = true;
+			numOfBlue++;
+			return;
+		
+		}else{
+			//Ai tries to make path of 3
+			for (int i=0;i<16;i++){
+				if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+					 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+					while(possibleSpots.hasNext()){
+						int tmp =possibleSpots.next();
+						if (board[tmp]==2){
+							if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+								System.out.println("AI removes a Piece");
+								Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 2);
+								disks[numOfBlue + 6] = true;
+								numOfBlue++;
+								if (Model.canEat(2, AI_3MenMorris.getPath(i).get(tmp)))
+									AI_Eat();
+								return;
+							}
+						}
+					}
+				}
+			}
+			
+			//Stop user from cmpleting path of 3
+			for (int i=0;i<16;i++){
+				if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+					 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+					while(possibleSpots.hasNext()){
+						int tmp =possibleSpots.next();
+						if (board[tmp]==1){
+							if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+								System.out.println("AI Blocks User");
+								Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 2);
+								disks[numOfBlue + 6] = true;
+								numOfBlue++;
+								return;
+							}
+						}
+					}
+				}
+			}
+			
+
+			//Ai tries to make path of 2
+			for (int i=0;i<16;i++){
+				if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+					 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+					while(possibleSpots.hasNext()){
+						int tmp =possibleSpots.next();
+						if (board[tmp]==0){
+							if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+								System.out.println("AI builds Path");
+								Model.setValue(tmp, 2);
+								disks[numOfBlue + 6] = true;
+								numOfBlue++;
+								return;
+							}
+						}
+					}
+				}
+			}
+			
+
+			//Ai tries to start path of 1
+			boolean hasSpots =false;
+			//check if any win lines are available
+			for (int i=0;i<16;i++){
+				if(board[i] != 0 && AI_3MenMorris.getAdj(i).length!=2){
+					hasSpots=true;
+				}
+			}
+			
+			if (hasSpots){
+				while (board[toSelect] != 0 && AI_3MenMorris.getAdj(toSelect).length!=2){
+					toSelect = rand.nextInt(16);
+				}
+			}else{
+				while (board[toSelect] != 0){
+					toSelect = rand.nextInt(16);
+				}
+			}
+			System.out.println("AI Makes First Move");
+			Model.setValue(toSelect, 2);
+			disks[numOfBlue + 6] = true;
+			numOfBlue++;
+			return;
+			//int[] moves=AI_3MenMorris.getAdj(toSelect);
+			//toSelect = rand.nextInt(moves.length);
+			//Model.setValue(moves[toSelect], 2);
+		}
+	}
+	
+	private void AI_Eat(){
+		int[] board = Model.getCurBoard();
+		//try to eat something with two pieces goin on 3
+		for (int i=0;i<16;i++){
+			if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==1){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+							Model.setValue(tmp, 0);
+							return;
+						}
+					}
+				}
+			}
+		}
+		
+		//try to eat something on a path
+		for (int i=0;i<16;i++){
+			if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+				Model.setValue(i, 0);
+				return;
+			}
+		}
+		
+		//eat anything
+		for (int i=0;i<16;i++){
+			if (board[i]==1){
+				Model.setValue(i, 0);
+				return;
+			}
+		}
 	}
 
 }

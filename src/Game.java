@@ -1,3 +1,6 @@
+import java.util.Iterator;
+import java.util.Random;
+
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -37,6 +40,8 @@ public class Game {
 	// message display
 	private Label upperMessage;
 	private Label lowerMessage;
+	//determines weather vs. AI or not
+	boolean AI_=false;
 
 	/**
 	 * The game constructor takes in the application window and the first player
@@ -47,7 +52,8 @@ public class Game {
 	 * @param player
 	 *            the first player
 	 */
-	public Game(Stage primaryStage, int player) {
+	public Game(Stage primaryStage, int player,boolean AI) {
+		AI_=AI;
 		// current players move
 		nextmove = player;
 		// interface root to add features to
@@ -239,9 +245,9 @@ public class Game {
 			Model.trackMoves(move);
 			// change the current player's move state
 			if (nextmove == 1)
-				nextmove = 2;
+				nextmove = incrTurn(nextmove);
 			else
-				nextmove = 1;
+				nextmove = incrTurn(nextmove);
 			// no disk is selected anymore
 			selected = -1;
 			return true;
@@ -332,5 +338,230 @@ public class Game {
 		if (selected != -1)
 			board.strokePos(selected, Color.WHITE);
 	}
+	
+	private int incrTurn(int curturn){
+		if (curturn ==1 && AI_){
+			AIPlace();
+			return 1;
+		}
+		
+		if (curturn ==1 ){
+			return 2;
+		}else{
+			return 1;
+		}
+	}
+	
+	private void AIPlace(){
+		int[] board = Model.getCurBoard();
+		//if already in a mill
+		for (int i=0;i<16;i++){
+			if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==2){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 2){
+							int[] check = AI_3MenMorris.getAdj(i);
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(i, 0);
+									
+									return;
+								}
+							}
+							
+							check = AI_3MenMorris.getAdj(tmp);
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(tmp, 0);
+									
+									return;
+								}
+							}
+							
+							check = AI_3MenMorris.getAdj(AI_3MenMorris.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 0);
+									
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//try to make a 3
+		for (int i=0;i<16;i++){
+			if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==2){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+							int[] check = AI_3MenMorris.getAdj(AI_3MenMorris.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==2 && check[i1] !=i && check[i1] != tmp){
+									Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 2);
+									Model.setValue(check[i1], 0);
+									if (Model.canEat(2, AI_3MenMorris.getPath(i).get(tmp)))
+										AI_Eat();
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//try to block player
+		//Stop user from cmpleting path of 3
+		for (int i=0;i<16;i++){
+			if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==1){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+							int[] check = AI_3MenMorris.getAdj(AI_3MenMorris.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==2){
+									Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 2);
+									Model.setValue(check[i1], 0);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+
+		//Ai tries to make path of 2
+		for (int i=0;i<16;i++){
+			if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==0){
+						int[] check = AI_3MenMorris.getAdj(tmp);
+						for (int i1=0; i1<check.length;i1++){
+							if (board[check[i1]]==2){
+								Model.setValue(tmp, 2);
+								Model.setValue(check[i1], 0);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//Ai tries to start path of 1
+		boolean hasSpots =false;
+		//check if any win lines are available
+		for (int i=0;i<16;i++){
+			if(board[i] != 0 && AI_3MenMorris.getAdj(i).length!=2){
+				int[] check = AI_3MenMorris.getAdj(i);
+				for (int i1=0; i1<check.length;i1++){
+					if (board[check[i1]]==2){
+						Model.setValue(i, 2);
+						Model.setValue(check[i1], 0);
+						return;
+					}
+				}
+			}
+		}
+		
+		Random rand = new Random();
+		int toSelect = rand.nextInt(16);
+
+			while (board[toSelect] != 0){
+				int[] check = AI_3MenMorris.getAdj(toSelect);
+				for (int i1=0; i1<check.length;i1++){
+					if (board[check[i1]]==2){
+						Model.setValue(toSelect, 2);
+						Model.setValue(check[i1], 0);
+						return;
+					}
+				}
+				toSelect = rand.nextInt(16);
+			}
+				
+		
+		
+		
+	}
+	private void AI_Eat(){
+		int[] board = Model.getCurBoard();
+		//try to eat something with two pieces goin on 3
+		for (int i=0;i<16;i++){
+			if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==1){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+							int[] possibleMoves = AI_3MenMorris.getAdj(AI_3MenMorris.getPath(i).get(tmp));
+							for (int j=0;j< possibleMoves.length;j++){
+								if (board[possibleMoves[j]]==1){
+									Model.setValue(tmp, 0);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//try to eat something blocking you
+		//if user is blocking ai from formin path detroy them
+		for (int i=0;i<16;i++){
+			if (board[i]==2 && (AI_3MenMorris.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = AI_3MenMorris.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==2){
+						if (board[AI_3MenMorris.getPath(i).get(tmp)] == 1){
+							Model.setValue(AI_3MenMorris.getPath(i).get(tmp), 0);
+							return;
+						}else if(board[AI_3MenMorris.getPath(i).get(tmp)] == 0){
+							int[] possibleMoves = AI_3MenMorris.getAdj(AI_3MenMorris.getPath(i).get(tmp));
+							for (int j=0;j< possibleMoves.length;j++){
+								if (board[possibleMoves[j]]==1){
+									Model.setValue(possibleMoves[j], 0);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//try to eat something on a path
+		for (int i=0;i<16;i++){
+			if (board[i]==1 && (AI_3MenMorris.getPath(i)!=null)){
+				Model.setValue(i, 0);
+				return;
+			}
+		}
+		
+		//eat anything
+		for (int i=0;i<16;i++){
+			if (board[i]==1){
+				Model.setValue(i, 0);
+				return;
+			}
+		}
+	}
+
 
 }
