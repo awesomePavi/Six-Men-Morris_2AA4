@@ -1,3 +1,6 @@
+import java.util.Iterator;
+import java.util.Random;
+
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -37,6 +40,8 @@ public class Game {
 	// message display
 	private Label upperMessage;
 	private Label lowerMessage;
+	//determines weather vs. AI or not
+	boolean AI_=false;
 
 	/**
 	 * The game constructor takes in the application window and the first player
@@ -46,8 +51,11 @@ public class Game {
 	 *            the application window
 	 * @param player
 	 *            the first player
+	 * @param AI
+	 * 			  true if vs AI false if not
 	 */
-	public Game(Stage primaryStage, int player) {
+	public Game(Stage primaryStage, int player,boolean AI) {
+		AI_=AI;
 		// current players move
 		nextmove = player;
 		// interface root to add features to
@@ -204,7 +212,8 @@ public class Game {
 		root.getChildren().add(upperMessage);
 		root.getChildren().add(lowerMessage);
 		root.getChildren().add(maineMenuButton);
-		root.getChildren().add(saveGameButton);
+		if (!AI_)
+			root.getChildren().add(saveGameButton);
 		// update to show current board info
 		update();
 		// background Colour
@@ -239,9 +248,9 @@ public class Game {
 			Model.trackMoves(move);
 			// change the current player's move state
 			if (nextmove == 1)
-				nextmove = 2;
+				nextmove = incrTurn(nextmove);
 			else
-				nextmove = 1;
+				nextmove = incrTurn(nextmove);
 			// no disk is selected anymore
 			selected = -1;
 			return true;
@@ -332,5 +341,275 @@ public class Game {
 		if (selected != -1)
 			board.strokePos(selected, Color.WHITE);
 	}
+	
+	/**
+	 * This method is implemented to allow the AI to be integrated with the current system, by the AI making ti's move and returning it back to the player
+	 * 
+	 * @param curturn - the current player's turn
+	 * @return - the enxt players turn
+	 */
+	private int incrTurn(int curturn){
+		//if it's the Ai's turn
+		if (curturn ==1 && AI_){
+			AIMove();
+			return 1;
+		}
+		
+		//if it's player one's turn make it player two's turn and vice versa
+		if (curturn ==1 ){
+			return 2;
+		}else{
+			return 1;
+		}
+	}
+	
+	/**
+	 * This is the logic behind the AI's move's i nthe game
+	 */
+	private void AIMove(){
+		//get current board info
+		int[] board = Model.getCurBoard();
+		//if AI is already in a mill, then break the mill
+		for (int i=0;i<16;i++){
+			//cheks if a AI piece is found and if it is on a mill path
+			if (board[i]==2 && (Model.getPath(i)!=null)){
+				//iterate through positions along the mill path to see if an AI piece is their
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					//if an AI piece is found
+					if (board[tmp]==2){
+						//at this point 2/3 spots on a mill are knwon to belong to th eAI, if the last path belongs to the AI then
+						if (board[Model.getPath(i).get(tmp)] == 2){
+							//move the firstpiece of the mill to an empty spot
+							int[] check = Model.getAdj(i);
+							//finds empty spot and moves piece too it
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(i, 0);
+									// move that was made, {colour,from, to}
+									int[] move = { 2, i,check[i1]};
+									Model.trackMoves(move);
+									return;
+								}
+							}
+							
+							//if the first peice si trapped in then check the enxt piece
+							check = Model.getAdj(tmp);
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(tmp, 0);
+									// move that was made, {colour,from, to}
+									int[] move = { 2, tmp,check[i1]};
+									Model.trackMoves(move);
+									return;
+								}
+							}
+							//if the second peice si trapped in then check thelast piece
+							check = Model.getAdj(Model.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								if (board[check[i1]]==0){
+									Model.setValue(check[i1], 2);
+									Model.setValue(Model.getPath(i).get(tmp), 0);
+									// move that was made, {colour,from, to}
+									int[] move = { 2, Model.getPath(i).get(tmp),check[i1]};
+									Model.trackMoves(move);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//if the AI does not have a mill it tries to form one
+		for (int i=0;i<16;i++){
+			//checks all 16 board positions for an AI piece if found then
+			if (board[i]==2 && (Model.getPath(i)!=null)){
+				//check if two of three spots on mill are AI pieces 
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==2){
+						//if so and the final spot is empty, then check if an AI piece is adjacent to it and can be moved into it
+						if (board[Model.getPath(i).get(tmp)] == 0){
+							//check adjacent spots
+							int[] check = Model.getAdj(Model.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								//if an AI piece can be mvoes into it then do so
+								if (board[check[i1]]==2 && check[i1] !=i && check[i1] != tmp){
+									Model.setValue(Model.getPath(i).get(tmp), 2);
+									Model.setValue(check[i1], 0);
+									// move that was made, {colour,from, to}
+									int[] move = { 2, check[i1], Model.getPath(i).get(tmp) };
+									Model.trackMoves(move);
+									if (Model.canEat(2, Model.getPath(i).get(tmp)))
+										AI_Eat();
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//try to block player
+		//Stop user from cmpleting path of 3
+		for (int i=0;i<16;i++){
+			//chekcs if user has a apth of size two yet
+			if (board[i]==1 && (Model.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==1){
+						//if so and the last path is empty then chek if any AI pieces may fill it in
+						if (board[Model.getPath(i).get(tmp)] == 0){
+							//check adajcent spots
+							int[] check = Model.getAdj(Model.getPath(i).get(tmp));
+							for (int i1=0; i1<check.length;i1++){
+								//if an AI piece can move in then move it in
+								if (board[check[i1]]==2){
+									Model.setValue(Model.getPath(i).get(tmp), 2);
+									Model.setValue(check[i1], 0);
+									// move that was made, {colour,from, to}
+									int[] move = { 2, check[i1], Model.getPath(i).get(tmp) };
+									Model.trackMoves(move);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+
+		//Ai tries to make path of 2
+		for (int i=0;i<16;i++){
+			//look if the AI has a piece along a mill and is able to expand theat mill to size of two then do so
+			if (board[i]==2 && (Model.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					//if the spot beside the mill is empty then fill it if possible
+					if (board[tmp]==0){
+						//check adjacent spots
+						int[] check = Model.getAdj(tmp);
+						for (int i1=0; i1<check.length;i1++){
+							//if an adjacent spot has a ai peice in it then move it to form the mill of size 2
+							if (board[check[i1]]==2){
+								Model.setValue(tmp, 2);
+								Model.setValue(check[i1], 0);
+								// move that was made, {colour,from, to}
+								int[] move = { 2, check[i1], tmp };
+								Model.trackMoves(move);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//ai moves a piece at random
+		Random rand = new Random();
+		int toSelect = rand.nextInt(16);
+//if the spot chosen to move to has nothign in it
+			while (board[toSelect] != 0){
+				int[] check = Model.getAdj(toSelect);
+				//look for adjacent posittions to that spot
+				for (int i1=0; i1<check.length;i1++){
+					//if ana adjacent spot has an AI piece then move it into that spot
+					if (board[check[i1]]==2){
+						Model.setValue(toSelect, 2);
+						Model.setValue(check[i1], 0);
+						// move that was made, {colour,from, to}
+						int[] move = { 2, check[i1], toSelect };
+						Model.trackMoves(move);
+						return;
+					}
+				}
+				//if not choose another rnadom spot
+				toSelect = rand.nextInt(16);
+			}
+				
+		
+		
+		
+	}
+	
+	/**
+	 * Called when the AI has formed a mill and ia about to eat a apiece
+	 */
+	private void AI_Eat(){
+		int[] board = Model.getCurBoard();
+		//try to eat something with two pieces goin on 3
+		for (int i=0;i<16;i++){
+			//look for two player pieces on path to making a mill
+			if (board[i]==1 && (Model.getPath(i)!=null)){
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==1){
+						//if the player has two pieces down check if their are any adjacent pieces whcih can make a mill next round
+						if (board[Model.getPath(i).get(tmp)] == 0){
+							//check adjacent pieces, for player pieces
+							int[] possibleMoves = Model.getAdj(Model.getPath(i).get(tmp));
+							for (int j=0;j< possibleMoves.length;j++){
+								//if a aplyer piece is found then rmeove a piece of the possible mill
+								if (board[possibleMoves[j]]==1){
+									Model.setValue(tmp, 0);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//try to eat something blocking you
+		//if user is blocking ai from formin path destroy them
+		for (int i=0;i<16;i++){
+			//look for AI pieces
+			if (board[i]==2 && (Model.getPath(i)!=null)){
+				//if found look if AI ahs two pieces o na mill
+				 Iterator<Integer> possibleSpots = Model.getPath(i).keySet().iterator();
+				while(possibleSpots.hasNext()){
+					int tmp =possibleSpots.next();
+					if (board[tmp]==2){
+						//if the ai has two places on a mill check if the user is blcoking the alst spot
+						if (board[Model.getPath(i).get(tmp)] == 1){
+							//if so destroy the player
+							Model.setValue(Model.getPath(i).get(tmp), 0);
+							return;
+						}else if(board[Model.getPath(i).get(tmp)] == 0){
+							//if not check if the player is besdie it and can block the ai next round
+							int[] possibleMoves = Model.getAdj(Model.getPath(i).get(tmp));
+							for (int j=0;j< possibleMoves.length;j++){
+								//if so then remvoe that peice
+								if (board[possibleMoves[j]]==1){
+									Model.setValue(possibleMoves[j], 0);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//eat anything
+		for (int i=0;i<16;i++){
+			if (board[i]==1){
+				Model.setValue(i, 0);
+				return;
+			}
+		}
+	}
+
 
 }

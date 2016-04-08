@@ -370,7 +370,7 @@ public class existingGame {
 	private void checkAndPLay(Stage window) {
 		// if the gameboard is valid, defualt starting player is random
 		if (Model.isPossibleBoard())
-			new Game(window,new Random().nextInt(2)+1);
+			new Game(window,new Random().nextInt(2)+1,false);
 		// if not display the error and highlight the problem
 		else {
 			switch (Model.getError()) {
