@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class acts as the model module in the MVC architecture
@@ -14,6 +16,15 @@ public class Model {
 	// and thus draws
 	private static ArrayList<int[]> moveHistory = new ArrayList();
 	private static int error = 0;
+	
+	/****************************************************************************************
+	 * *****************                        AI                          *************** *
+	 ***************************************************************************************/
+	//keep track of what positions are connected which positions
+	private static int positionAdjacent[][]={{1,6},{0,2,4},{1,9},{4,7},{1,3,5},{4,8},{0,7,13},{3,6,10},{5,9,12},{2,8,15},{7,11},{10,12,14},{8,11},{6,14},{11,13,15},{9,14}};
+		
+	//to map each position to a winpath
+	private static Map<Integer,Map<Integer,Integer>> winPath = new HashMap<Integer,Map<Integer,Integer>>();
 
 	/**
 	 * This function returns the most recent error that was raised
@@ -647,5 +658,74 @@ public class Model {
 				return true;
 		}
 		return false;
+	}
+	
+	/****************************************************************************************
+	 * *****************                        AI                          *************** *
+	 ***************************************************************************************/
+	/**
+	 * This method initializes the winPath map, to list all possible pathways that lead form a single psoiton to form a mill
+	 */
+	public static void initalize(){
+		//list all paths that can be used to make a mill
+		int winPaths[][]={{0,1,2},{3,4,5},{10,11,12},{13,14,15},{0,6,13},{2,9,15},{3,7,10},{5,8,12}};
+		//go through list of path ways to make a mill
+		for (int i=0;i<winPaths.length;i++){
+			//load up secondary hashmap if it exists if it does not form it now. This hashmap is waht the first key/psotion maps too
+			Map<Integer,Integer> map = new HashMap<Integer,Integer>();
+			if (winPath.containsKey(winPaths[i][0]))
+				map = winPath.get(winPaths[i][0]);
+
+			//for each of the other two psotions add them into the map, with both ocmbinations
+			map.put(winPaths[i][1], winPaths[i][2]);
+			map.put(winPaths[i][2], winPaths[i][1]);
+
+			//add the path's to the map for the positon
+			winPath.put(winPaths[i][0],map);
+
+			//repeat for the other combinations of  the mill
+			map = new HashMap<Integer,Integer>();
+			if (winPath.containsKey(winPaths[i][1]))
+				map = winPath.get(winPaths[i][1]);
+
+			map.put(winPaths[i][0], winPaths[i][2]);
+			map.put(winPaths[i][2], winPaths[i][0]);
+
+			winPath.put(winPaths[i][1],map);
+
+			map = new HashMap<Integer,Integer>();
+			if (winPath.containsKey(winPaths[i][2]))
+				map = winPath.get(winPaths[i][2]);
+
+			map.put(winPaths[i][1], winPaths[i][0]);
+			map.put(winPaths[i][0], winPaths[i][1]);
+
+			winPath.put(winPaths[i][2],map);	
+		}
+
+	}
+
+	/**
+	 * This method takes in a position on the board adn returns all adjacent ones
+	 * 
+	 * @param pos - the position in question
+	 * @return - an array of integers representing all adjacent positions
+	 */
+	public static int[] getAdj(int pos){
+		return positionAdjacent[pos];
+	}
+
+	/**
+	 * This method takes in a position on the board and returns the mill it belongs too
+	 * 
+	 * @param pos - the position in question
+	 * @return  - a amp of the rest of the mill
+	 */
+	public static Map<Integer,Integer> getPath(int pos){
+		// if mill exists return it
+		if (winPath.containsKey(pos))
+			return winPath.get(pos);
+		return null;
+
 	}
 }
