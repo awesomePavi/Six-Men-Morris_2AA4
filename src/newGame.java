@@ -118,7 +118,7 @@ public class newGame {
 						Model.setValue(board.position(x, y), 2);
 						disks[numOfBlue + 6] = true;
 						numOfBlue++;
-						nextmove = incrTurn(nextmove);
+						nextmove = 1;
 						return true;
 					}
 				} else {
@@ -132,7 +132,7 @@ public class newGame {
 						Model.setValue(board.position(x, y), 1);
 						disks[numOfRed] = true;
 						numOfRed++;
-						nextmove =  incrTurn(nextmove);
+						nextmove =  2;
 						return true;
 					}
 				} else {// error
@@ -199,7 +199,7 @@ public class newGame {
 	private void playgame(Scene scene) {
 		// randomly select a color to start
 		rand= new Random();
-		nextmove = 1;//rand.nextInt(2)+1;
+		nextmove = 2;//rand.nextInt(2)+1;
 		//if player 2's turn and battling an AI
 		if (nextmove==2 && AI_){
 			//the AI amkes i't's move and returns it back to the user
@@ -225,9 +225,13 @@ public class newGame {
 						if (Model.canEat(currentmove, position)) {
 							if (AI_)
 								nextmove=2;
+							
 							makeEat = true;
 							dispMessage("Remove One Piece");
 						}
+						//if it's the ai's turn and the other player is not eating anything
+						if (AI_ && nextmove==2 && !makeEat)
+							nextmove=AITurn();
 					}
 
 				}
@@ -246,6 +250,8 @@ public class newGame {
 								eat(chooseToEat);
 								update();
 								makeEat = false;
+								if (AI_ && nextmove==2)
+									nextmove=AITurn();
 
 							}
 							// the chosen opponent's dice cannot be ate
@@ -347,19 +353,12 @@ public class newGame {
 	 * @param curturn - the current player's turn
 	 * @return - the next players turn
 	 */
-	private int incrTurn(int curturn){
+	private int AITurn(){
+		if (numOfBlue < 6) {
 		//if it's the Ai's turn
-		if (curturn ==1 && AI_){
 			AIPlace();
-			return 1;
 		}
-		
-		//if it's player one's turn make it player two's turn and vice versa
-		if (curturn ==1 ){
-			return 2;
-		}else{
 			return 1;
-		}
 	}
 	
 	/**
@@ -463,7 +462,7 @@ public class newGame {
 			}
 			//if spots are availbe along two sided mills then rnadomly palce at one of these spots 
 			if (hasSpots){
-				while (board[toSelect] != 0 && Model.getAdj(toSelect).length!=2){
+				while (board[toSelect] != 0 || Model.getAdj(toSelect).length!=2){
 					toSelect = rand.nextInt(16);
 				}
 			//if no spots are availble with two mills palce randomly
@@ -472,6 +471,7 @@ public class newGame {
 					toSelect = rand.nextInt(16);
 				}
 			}
+			
 			System.out.println("AI Makes a Move");
 			Model.setValue(toSelect, 2);
 			disks[numOfBlue + 6] = true;

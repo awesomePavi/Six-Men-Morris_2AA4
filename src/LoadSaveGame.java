@@ -34,9 +34,9 @@ public class LoadSaveGame {
 	 * @param playerTurn
 	 *            The users turn
 	 */
-	public LoadSaveGame(Stage window, int playerTurn) {
+	public LoadSaveGame(Stage window, int playerTurn, boolean AI) {
 		// save game
-		save(playerTurn);
+		save(playerTurn,AI);
 		// resetBoard state for a new Game
 		Model.reset();
 		// go back to main menu
@@ -63,11 +63,13 @@ public class LoadSaveGame {
 			fileIn = buffRead.readLine().split(",");
 			// load current player info from file
 			int player = Integer.parseInt(fileIn[0]);
+			// load current AI info from file
+			boolean AI= Boolean.parseBoolean(fileIn[1]);
 			// load the sixteen board positions into the model
 			for (int i = 0; i < 16; i++) {
 				// offset by one since the first position is dedicated to player
 				// turn
-				Model.setValue(i, Integer.parseInt(fileIn[i + 1]));
+				Model.setValue(i, Integer.parseInt(fileIn[i + 2]));
 			}
 			// load the move history from the file into the model movehistory
 			// list
@@ -86,8 +88,9 @@ public class LoadSaveGame {
 			buffRead.close();
 			read.close();
 			// begin game, from previously saved state
-			new Game(window, player,false);
+			new Game(window, player,AI);
 		} catch (Exception e) {
+			System.out.println(e);
 			new Menu().start(window);
 		}
 	}
@@ -99,7 +102,7 @@ public class LoadSaveGame {
 	 * @param playerTurn
 	 *            the current players turn in the game
 	 */
-	private void save(int playerTurn) {
+	private void save(int playerTurn,boolean AI) {
 		// try and catch used to supress warnings
 		try {
 			// the get the board data to be written
@@ -109,6 +112,8 @@ public class LoadSaveGame {
 			FileWriter write = new FileWriter(out);
 			// first piece of data is the current players turn
 			write.write(Integer.toString(playerTurn));
+			// first piece of data is the current players turn
+			write.write(","+Boolean.toString(AI));
 			// write the board data as a csv
 			for (int i = 0; i < 16; i++) {
 				write.write("," + board[i]);

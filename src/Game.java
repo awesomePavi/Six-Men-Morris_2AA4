@@ -118,7 +118,7 @@ public class Game {
 		saveGameButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent mouseEvent) {
 				// save current game than go back to main menu
-				new LoadSaveGame(primaryStage, nextmove);
+				new LoadSaveGame(primaryStage, nextmove,AI_);
 			}
 		});
 
@@ -149,6 +149,9 @@ public class Game {
 							mouseEvent.consume();
 
 						}
+						//if it's the ai's turn and the other player is not eating anything
+						if (AI_ && nextmove==2 && !makeEat)
+							nextmove=AITurn();
 					}
 					// if nothing has been selected then select an
 					// object
@@ -172,6 +175,9 @@ public class Game {
 								eat(chooseToEat);
 								update();
 								makeEat = false;
+								//if it's the ai's turn and the other player is not eating anything
+								if (AI_ && nextmove==2)
+									nextmove=AITurn();
 							}
 							// the chosen opponent's dice cannot be ate
 							else {
@@ -212,8 +218,7 @@ public class Game {
 		root.getChildren().add(upperMessage);
 		root.getChildren().add(lowerMessage);
 		root.getChildren().add(maineMenuButton);
-		if (!AI_)
-			root.getChildren().add(saveGameButton);
+		root.getChildren().add(saveGameButton);
 		// update to show current board info
 		update();
 		// background Colour
@@ -248,9 +253,9 @@ public class Game {
 			Model.trackMoves(move);
 			// change the current player's move state
 			if (nextmove == 1)
-				nextmove = incrTurn(nextmove);
+				nextmove = 2;
 			else
-				nextmove = incrTurn(nextmove);
+				nextmove = 1;
 			// no disk is selected anymore
 			selected = -1;
 			return true;
@@ -348,19 +353,9 @@ public class Game {
 	 * @param curturn - the current player's turn
 	 * @return - the enxt players turn
 	 */
-	private int incrTurn(int curturn){
-		//if it's the Ai's turn
-		if (curturn ==1 && AI_){
-			AIMove();
-			return 1;
-		}
-		
-		//if it's player one's turn make it player two's turn and vice versa
-		if (curturn ==1 ){
-			return 2;
-		}else{
-			return 1;
-		}
+	private int AITurn(){
+		AIMove();
+		return 1;
 	}
 	
 	/**
@@ -388,6 +383,7 @@ public class Game {
 								if (board[check[i1]]==0){
 									Model.setValue(check[i1], 2);
 									Model.setValue(i, 0);
+									System.out.println("AI Moves");
 									// move that was made, {colour,from, to}
 									int[] move = { 2, i,check[i1]};
 									Model.trackMoves(move);
@@ -401,6 +397,7 @@ public class Game {
 								if (board[check[i1]]==0){
 									Model.setValue(check[i1], 2);
 									Model.setValue(tmp, 0);
+									System.out.println("AI Moves");
 									// move that was made, {colour,from, to}
 									int[] move = { 2, tmp,check[i1]};
 									Model.trackMoves(move);
@@ -413,6 +410,7 @@ public class Game {
 								if (board[check[i1]]==0){
 									Model.setValue(check[i1], 2);
 									Model.setValue(Model.getPath(i).get(tmp), 0);
+									System.out.println("AI Moves");
 									// move that was made, {colour,from, to}
 									int[] move = { 2, Model.getPath(i).get(tmp),check[i1]};
 									Model.trackMoves(move);
@@ -443,6 +441,7 @@ public class Game {
 								if (board[check[i1]]==2 && check[i1] !=i && check[i1] != tmp){
 									Model.setValue(Model.getPath(i).get(tmp), 2);
 									Model.setValue(check[i1], 0);
+									System.out.println("AI MAkes a Mill");
 									// move that was made, {colour,from, to}
 									int[] move = { 2, check[i1], Model.getPath(i).get(tmp) };
 									Model.trackMoves(move);
@@ -475,6 +474,7 @@ public class Game {
 								if (board[check[i1]]==2){
 									Model.setValue(Model.getPath(i).get(tmp), 2);
 									Model.setValue(check[i1], 0);
+									System.out.println("AI Blocks user's Mill");
 									// move that was made, {colour,from, to}
 									int[] move = { 2, check[i1], Model.getPath(i).get(tmp) };
 									Model.trackMoves(move);
@@ -504,6 +504,7 @@ public class Game {
 							if (board[check[i1]]==2){
 								Model.setValue(tmp, 2);
 								Model.setValue(check[i1], 0);
+								System.out.println("AI is one away from a Mill");
 								// move that was made, {colour,from, to}
 								int[] move = { 2, check[i1], tmp };
 								Model.trackMoves(move);
@@ -518,7 +519,7 @@ public class Game {
 		//ai moves a piece at random
 		Random rand = new Random();
 		int toSelect = rand.nextInt(16);
-//if the spot chosen to move to has nothign in it
+		//if the spot chosen to move to has nothign in it
 			while (board[toSelect] != 0){
 				int[] check = Model.getAdj(toSelect);
 				//look for adjacent posittions to that spot
@@ -527,6 +528,7 @@ public class Game {
 					if (board[check[i1]]==2){
 						Model.setValue(toSelect, 2);
 						Model.setValue(check[i1], 0);
+						System.out.println("AI Moves");
 						// move that was made, {colour,from, to}
 						int[] move = { 2, check[i1], toSelect };
 						Model.trackMoves(move);
@@ -562,6 +564,7 @@ public class Game {
 							for (int j=0;j< possibleMoves.length;j++){
 								//if a aplyer piece is found then rmeove a piece of the possible mill
 								if (board[possibleMoves[j]]==1){
+									System.out.println("AI Prevents Mill");
 									Model.setValue(tmp, 0);
 									return;
 								}
@@ -592,6 +595,7 @@ public class Game {
 							for (int j=0;j< possibleMoves.length;j++){
 								//if so then remvoe that peice
 								if (board[possibleMoves[j]]==1){
+									System.out.println("AI Frees Mill");
 									Model.setValue(possibleMoves[j], 0);
 									return;
 								}
@@ -605,6 +609,7 @@ public class Game {
 		//eat anything
 		for (int i=0;i<16;i++){
 			if (board[i]==1){
+				System.out.println("AI Eats");
 				Model.setValue(i, 0);
 				return;
 			}
