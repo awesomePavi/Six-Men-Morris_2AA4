@@ -9,7 +9,9 @@ Changes:
 6. Several bugs fixed
 
 Still Need To Be Done:
-1. Save and load game.
-2. Check if the game cannot be won
-3. design document
-4.  jar file
+1.  jar file
+
+To Run:
+1. Open terminal or Command Prompt
+2. Go to the bin directory
+3. run the Menu class file, with the java command
